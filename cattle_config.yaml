@@ -1,0 +1,7 @@
+# This file tells YOLO where to find the training and validation images.
+train: ./cattle_yolo_dataset/images/train
+val: ./cattle_yolo_dataset/images/valid
+
+# It also specifies the number of object classes and their names.
+nc: 1
+names: ['cattle']
