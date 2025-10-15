@@ -1,27 +1,103 @@
 ﻿# UAV-UGV-Land-Survey
 
 ## Getting Started
+### 1. Clone the Repository
+git clone https://github.com/<your-username>/UAV-UGV-Land-Survey.git
+cd UAV-UGV-Land-Survey
 
-Jesse, please clone this repo and open up the folder in an ide. 
+### 2. Open the Folder in Your IDE
 
-Jesse, please download this dataset from Kaggle. 
-| https://www.kaggle.com/datasets/magnusmakgasane/cattle-detection-in-aerial-imagery
+Use any Python-compatible IDE (such as PyCharm, VS Code, or Jupyter Notebook).
 
-Please save these files to the main directory folder you have open. You will get a bunch of folders. 
+##  Dataset Setup
+### 1. Download Dataset
 
-### Formatting the csv files
+Download the dataset from Kaggle:
+🔗 [Cattle Detection in Aerial Imagery](https://www.kaggle.com/datasets/magnusmakgasane/cattle-detection-in-aerial-imagery)
 
-Then you are going to run the 'prepare_data_from_csv.py' file. Make sure that the image and file directories are correct. 
-Then run that file. It will seperate all the images into the correct folder format for training. 
+Unzip the dataset and save all folders directly in the main project directory.
 
-Then run the 'verify_paths.py' file to make sure everything is good. If you dont get any errors, great. If you do get an error, look at the code and your folders and make sure the paths are correct. 
+## Data Preparation
+### 1. Format the CSV Files
 
-If you renamed your folders something weird in the previous step, go to the 'cattle_config.yaml' file. There, you will see a YAML formatted file that is basically a json dictionry. Change the paths to the train and test database there. 
+Run:
+```
+python prepare_data_from_csv.py
+```
 
-THEN run 'check_dataset.py' file to make sure everythings good. If you get error, once again **CHECK YOUR PATHS**. 
+✅ This script organizes your dataset into the correct folder format for training and validation.
 
+Tip: Ensure that your image and CSV file directories are correctly set within the script before running.
 
-### FINALLY, run the TRAIN.PY FILE. 
+### 2. Verify Folder Paths
 
+Next, verify that the data paths are valid:
+```
+python verify_paths.py
+```
 
-The end.
+If you see no errors, everything is set up correctly!
+If you do see errors, check:
+
+- Folder names
+- File paths in the script
+- Directory structure
+
+### 3. Update Configuration (if needed)
+
+If you renamed folders or moved files, open:
+```
+cattle_config.yaml
+```
+
+and update the train and val dataset paths.
+The file is in YAML format (like JSON, but cleaner).
+
+### 4. Run Dataset Check
+
+Finally, confirm your dataset integrity:
+```
+python check_dataset.py
+```
+
+If any issues appear, double-check your paths — most errors are path-related.
+
+## Model Training
+
+Once your dataset is ready and verified, run:
+```
+python train.py
+```
+
+This will start the model training process using your prepared data.
+
+🧩 Folder Structure
+```
+UAV-UGV-Land-Survey/
+│
+├── prepare_data_from_csv.py
+├── verify_paths.py
+├── check_dataset.py
+├── train.py
+├── cattle_config.yaml
+│
+├── /images
+│   ├── train/
+│   └── valid/
+│
+├── /labels
+│   ├── train/
+│   └── valid/
+│
+└── README.md
+```
+
+## Authors
+
+Isabella Villarreal
+
+Jesse Fernandez
+
+Roberto Esquivel
+
+## License
