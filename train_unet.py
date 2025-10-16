@@ -3,7 +3,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader
 import segmentation_models_pytorch as smp
-from dataset import RoboflowCocoDataset # This file doesn't need to change
+from unet_dataset import RoboflowCocoDataset # This file doesn't need to change
 
 # --- CONFIGURATION ---
 DATA_DIR = "./Crop-Field-Computer-Vision-Dataset-1" 
