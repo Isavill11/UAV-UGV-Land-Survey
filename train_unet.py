@@ -6,7 +6,7 @@ import segmentation_models_pytorch as smp
 from unet_dataset import RoboflowCocoDataset # This file doesn't need to change
 
 # --- CONFIGURATION ---
-DATA_DIR = "./Crop-Field-Computer-Vision-Dataset-1" 
+DATA_DIR = "./Crop-Field.v1i.coco-segmentation" 
 ENCODER = "resnet34"
 PRETRAINED_WEIGHTS = "imagenet"
 NUM_CLASSES = 2   # 0: background, 1: crop
