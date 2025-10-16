@@ -3,13 +3,16 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 from torch.utils.data import DataLoader
 import segmentation_models_pytorch as smp
-from dataset import CropWeedDataset # Import our new dataset class
+from dataset import RoboflowCocoDataset # Import our new COCO dataset class
 
 # --- CONFIGURATION ---
-DATA_DIR = "./unet_dataset" # Points to the folder from Step 1
+# IMPORTANT: Update this path to the name of the folder Roboflow creates
+DATA_DIR = "./Crop-Field-Computer-Vision-Dataset-1" 
 ENCODER = "resnet34"
 PRETRAINED_WEIGHTS = "imagenet"
-NUM_CLASSES = 3   # 0: background, 1: crop, 2: weed
+# This dataset has one class ("crop") plus the background. Roboflow assigns class_id=1.
+# So we need 2 classes total (0=background, 1=crop).
+NUM_CLASSES = 2   
 BATCH_SIZE = 4    
 EPOCHS = 25
 LEARNING_RATE = 0.001
@@ -24,10 +27,9 @@ def main():
     ])
 
     print("Loading and preparing datasets...")
-    full_dataset = CropWeedDataset(data_dir=DATA_DIR, transform=transform)
-    train_size = int(0.8 * len(full_dataset))
-    valid_size = len(full_dataset) - train_size
-    train_dataset, valid_dataset = torch.utils.data.random_split(full_dataset, [train_size, valid_size])
+    # Roboflow datasets are already split, so we create separate datasets
+    train_dataset = RoboflowCocoDataset(data_dir=DATA_DIR, split='train', transform=transform)
+    valid_dataset = RoboflowCocoDataset(data_dir=DATA_DIR, split='valid', transform=transform)
 
     train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
     valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False)
@@ -76,7 +78,7 @@ def main():
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), 'best_crop_weed_model.pth')
+            torch.save(model.state_dict(), 'best_roboflow_crop_model.pth')
             print("-> New best model saved!")
 
     print("--- Training finished! ---")
