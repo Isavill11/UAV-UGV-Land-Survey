@@ -17,28 +17,41 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # ---------------------
 
 def main():
-    transform = A.Compose([
+    # Define separate transformations for training and validation
+    train_transform = A.Compose([
+        A.Resize(height=512, width=512),
+        A.HorizontalFlip(p=0.5), # Randomly flip images horizontally
+        A.VerticalFlip(p=0.5),   # Randomly flip images vertically
+        A.RandomRotate90(p=0.5), # Randomly rotate by 90, 180, or 270 degrees
+        A.RandomBrightnessContrast(p=0.2), # Adjust brightness/contrast
+        A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)),
+        ToTensorV2(),
+    ])
+    
+    val_transform = A.Compose([
         A.Resize(height=512, width=512),
         A.Normalize(mean=(0.0, 0.0, 0.0), std=(1.0, 1.0, 1.0)),
         ToTensorV2(),
     ])
-
-    print("Loading and preparing dataset...")
-    # --- THIS IS THE UPDATED SECTION ---
-    # 1. Load the entire dataset from the 'train' folder
-    full_dataset = RoboflowCocoDataset(data_dir=DATA_DIR, split='train', transform=transform)
     
-    # 2. Calculate split sizes (80% for training, 20% for validation)
+    print("Loading and preparing dataset...")
+    # Load the entire dataset
+    full_dataset = RoboflowCocoDataset(data_dir=DATA_DIR, split='train') # Load without transform first
+    
+    # Split the dataset
     train_size = int(0.8 * len(full_dataset))
     valid_size = len(full_dataset) - train_size
+    train_subset, valid_subset = torch.utils.data.random_split(full_dataset, [train_size, valid_size])
     
-    # 3. Split the dataset randomly
-    train_dataset, valid_dataset = torch.utils.data.random_split(full_dataset, [train_size, valid_size])
-    print(f"Dataset split into {len(train_dataset)} training images and {len(valid_dataset)} validation images.")
-    # --- END OF UPDATED SECTION ---
+    # Apply the respective transformations to each subset
+    train_subset.dataset.transform = train_transform
+    valid_subset.dataset.transform = val_transform
     
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    valid_loader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    print(f"Dataset split into {len(train_subset)} training images and {len(valid_subset)} validation images.")
+    
+    # Create DataLoaders with the new subsets
+    train_loader = DataLoader(train_subset, batch_size=BATCH_SIZE, shuffle=True)
+    valid_loader = DataLoader(valid_subset, batch_size=BATCH_SIZE, shuffle=False)
 
     print("Initializing U-Net model...")
     model = smp.Unet(
