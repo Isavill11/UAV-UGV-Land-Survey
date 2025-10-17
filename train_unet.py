@@ -7,11 +7,11 @@ from unet_dataset import RoboflowCocoDataset # This file doesn't need to change
 
 # --- CONFIGURATION ---
 DATA_DIR = "./Crop-Field.v1i.coco-segmentation" 
-ENCODER = "resnet34"
+ENCODER = "resnet50"
 PRETRAINED_WEIGHTS = "imagenet"
 NUM_CLASSES = 2   # 0: background, 1: crop
 BATCH_SIZE = 4    
-EPOCHS = 25
+EPOCHS = 50
 LEARNING_RATE = 0.001
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # ---------------------
