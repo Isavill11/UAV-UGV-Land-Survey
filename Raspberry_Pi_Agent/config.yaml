@@ -1,0 +1,118 @@
+platform:
+  name: ""
+  id: ""
+  location: ""
+  type: ""   # uav | ugv | ground_station
+
+camera:
+  id: ""
+  model: ""
+  resolution:
+    width: 0
+    height: 0
+  framerate: 0.9
+  field_of_view: 0.0
+  exposure_settings:
+    iso: 0
+    shutter_speed: 0
+  jpeg_quality: 90
+  capture_rate_hz: 1.0
+  min_capture_rate_hz: 0.1
+  warm_capture_rate_hz: 0.5
+
+preprocessing:
+  enabled: false
+  methods:
+    resize:
+      enabled: false
+      width: 0
+      height: 0
+    denoise:
+      enabled: false
+    grayscale:
+      enabled: false
+    edge_detection:
+      enabled: false
+    blur:
+      enabled: false
+    roi:
+      enabled: false
+
+storage:
+  local_path: ""
+  max_storage_mb: 0
+  unprocessed_folder: ""
+  processed_folder: ""
+  tx_queue_folder: ""
+  max_raw_storage_mb: 0
+  max_processed_storage_mb: 0
+  auto_cleanup:
+    enabled: false
+    threshold_mb: 0
+    cleanup_amount_mb: 0
+
+buffering:
+  max_tx_queue_size: 0
+  drop_policy: "oldest"   # oldest | newest | reject
+
+batching:
+  enabled: false
+  batch_size: 0
+  time_threshold_sec: 0
+
+communication:
+  protocol: ""   # udp | tcp | mavlink | custom
+  ground_station_ip: ""
+  ground_station_port: 0
+  uav_id: ""
+  ugv_id: ""
+  encryption:
+    enabled: false
+    method: ""
+    key: ""
+  max_packet_size_bytes: 0
+  link_check_interval_sec: 0
+  max_packet_loss_percent: 0.0
+
+thermal_management:
+  enabled: false
+  read_interval_sec: 0
+  thresholds_c:
+    cool: 0
+    warm: 0
+    hot: 0
+    critical: 0
+  policies:
+    cool:
+      capture_rate_hz: 0
+      tx_enabled: false
+    warm:
+      capture_rate_hz: 0
+      tx_enabled: false
+    hot:
+      capture_rate_hz: 0
+      tx_enabled: false
+    critical:
+      capture_rate_hz: 0
+      tx_enabled: false
+
+power_management:
+  enabled: false
+  min_battery_level_percent: 0
+  low_power_mode:
+    capture_rate_hz: 0
+    tx_enabled: false
+
+coordination:
+  role_priority: []
+  relay_enabled: false
+  upstream_vehicle_id: ""
+  downstream_vehicle_id: ""
+
+logging:
+  level: ""   # DEBUG | INFO | WARNING | ERROR
+  log_dir: ""
+  log_boot_checks: false
+  log_thermal: false
+  log_power: false
+  log_communication: false
