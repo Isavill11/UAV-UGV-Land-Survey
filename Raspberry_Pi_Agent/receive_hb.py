@@ -8,13 +8,9 @@ import time
 
 
 def mavlink_listener(drone_health: DroneHealth, link_health: LinkHealth): 
-    
     master = mavutil.mavlink_connection('udp:0.0.0.0:14550')
-
     print('waiting for heartbeat...')
-
     master.wait_heartbeat(timeout=15)
-
     print('heartbeat received!')
 
     while True: 

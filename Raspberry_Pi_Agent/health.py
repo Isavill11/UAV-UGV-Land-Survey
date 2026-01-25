@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
 import time
+import os
+
+
 
 @dataclass
 class DroneHealth:
@@ -20,15 +23,23 @@ class DroneHealth:
 @dataclass
 class PiHealth:
     cpu_temp: float | None = None
-    cpu_throttled: bool = False
     storage_ok: bool = True
     last_update: float = field(default_factory=time.time)
 
-    def is_overheating(self, cfg):
-        return (
-            self.cpu_temp is not None
-            and self.cpu_temp > cfg["pi_temp_critical"]
-        )
+    def get_raspi_core_temp(self):
+        temp = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline()
+        return float(temp) / 1000.0
+
+    def check_disk(self):
+        st = os.statvfs("/")
+        free = st.f_bavail * st.f_frsize
+        return free > 100 * 1024 * 1024  # 100 MB minimum
+
+    def update(self):
+        self.cpu_temp = self.get_raspi_core_temp()
+        self.storage_ok = self.check_disk()
+        self.last_update = time.time()
+
     
 
 @dataclass
