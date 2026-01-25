@@ -6,19 +6,21 @@ platform:
 
 camera:
   id: ""
-  model: ""
-  resolution:
-    width: 0
-    height: 0
-  framerate: 0.9
-  field_of_view: 0.0
-  exposure_settings:
-    iso: 0
-    shutter_speed: 0
-  jpeg_quality: 90
-  capture_rate_hz: 1.0
-  min_capture_rate_hz: 0.1
-  warm_capture_rate_hz: 0.5
+  type: "" ## PiCam | Webcam | None
+  capture_profiles:
+  CAPTURING:
+    interval: 1.0
+    jpeg_quality: 90
+    save_dir: captured_images/full
+
+  DEGRADED:
+    interval: 5.0
+    jpeg_quality: 50
+    save_dir: captured_images/degraded
+### etc etc etc
+
+
+
 
 preprocessing:
   enabled: false
@@ -71,7 +73,10 @@ communication:
     method: ""
     key: ""
   max_packet_size_bytes: 0
-  link_check_interval_sec: 0
+  link_thresholds:
+    rssi_degraded: 70
+    rssi_critical: 85
+    link_check_interval_sec: 0
   max_packet_loss_percent: 0.0
 
 thermal_management:
