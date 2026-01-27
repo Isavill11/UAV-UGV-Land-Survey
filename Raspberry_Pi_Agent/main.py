@@ -7,7 +7,6 @@ from health import SystemHealth, PiHealth, LinkHealth
 import time
 
 
-
 ##### upon each instance ALWAYS self check
 
 checker = SelfCheckPrelaunch('/Raspberry_Pi_Agent/config.yaml')
@@ -17,11 +16,14 @@ if not checker.run():
 
 #### upon each instance, ALWAYS rebuild
 
+cfg = checker.config
+
 mission, capture = SystemBuilder.build()
 system_health = SystemHealth()
+mission_running = True
 
 
-while True:
+while mission_running:
     
 ### TODO: Check if the heartbeat is receiving things, only then do we update everything else. 
 ### TODO: We need to keep track of time to determine when to start capturing images. 
@@ -31,3 +33,19 @@ while True:
     mission.update()
     time.sleep(0.05)
 
+
+
+    #update health inputs
+    system_health.drone.battery_remaining = fc.get_battery_percent()
+    drone_health.last_update = time.time()
+
+    # evaluate
+    bat_state = drone_health.battery_state(cfg)
+
+    if bat_state == BatteryState.CRITICAL:
+        self.abort_mission()
+
+    elif bat_state == BatteryState.LOW:
+        self.enter_degraded_mode()
+
+    time.sleep(0.5)

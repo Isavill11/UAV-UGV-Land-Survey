@@ -4,15 +4,22 @@ platform:
   location: ""
   type: ""   # uav | ugv | ground_station
 
+
+
+
+
+
+
+
 camera:
   id: ""
   type: "" ## PiCam | Webcam | None
+
   capture_profiles:
   CAPTURING:
     interval: 1.0
     jpeg_quality: 90
     save_dir: captured_images/full
-
   DEGRADED:
     interval: 5.0
     jpeg_quality: 50
@@ -109,12 +116,12 @@ thermal_management:
       capture_rate_hz: 0
       tx_enabled: false
 
-power_management:
-  enabled: false
-  min_battery_level_percent: 0
-  low_power_mode:
-    capture_rate_hz: 0
-    tx_enabled: false
+
+
+battery_status: 
+  critical_battery: 25
+  low_battery: 40
+
 
 coordination:
   role_priority: []

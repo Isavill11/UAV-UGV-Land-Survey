@@ -11,6 +11,16 @@ class MissionState(Enum):
     FAILSAFE = auto()
     SHUTDOWN = auto()
 
+class BatteryState(Enum):
+    OK = auto()
+    LOW = auto()
+    CRITICAL = auto()
+    UNKNOWN = auto()
+
+
+
+
+
 class MissionController:
     def __init__(self, system_health, cfg, capture):
         self.state = MissionState.INIT
@@ -36,6 +46,12 @@ class MissionController:
                 self._transition(MissionState.DEGRADED)
             elif not self.health.is_safe(self.cfg):
                 self._transition(MissionState.FAILSAFE)
+                
+            if self.health.drone.battery_state(self.cfg) == BatteryState.LOW:
+                self._transition(MissionState.DEGRADED)
+
+            if self.health.drone.is_critical(self.cfg):
+                    self._transition(MissionState.FAILSAFE)
 
         elif self.state == MissionState.DEGRADED:
             if self.health.radio.is_bad(self.cfg["link_thresholds"]):
@@ -46,25 +62,34 @@ class MissionController:
         elif self.state == MissionState.FAILSAFE:
             self._transition(MissionState.SHUTDOWN)
 
+
     def _transition(self, new_state):
         self._on_exit(self.state)
         self.state = new_state
         self._on_enter(new_state)
+
 
     def _on_enter(self, state):
         if state == MissionState.CAPTURING:
             self.capture.start()
             self.capture.apply_profile("CAPTURING")
 
+
+
         elif state == MissionState.DEGRADED:
             self.capture.start()
             self.capture.apply_profile("DEGRADED")
 
+
+
         elif state in (MissionState.FAILSAFE, MissionState.SHUTDOWN):
             self.capture.stop()
 
+
+
     def _on_exit(self, state):
         pass
+
 
 
 

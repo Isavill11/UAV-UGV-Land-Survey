@@ -24,20 +24,20 @@ class SelfCheckPrelaunch:
                 ]): 
             print('everything is ready to run')
         else:
-            print('Something went wrong:')
+            print('Something went wrong.')
             
         
- 
-    def check_config(self):
+
+    def check_config(self): ### checks config file and safeloads yaml file and updates self.config
         try: 
             with open(self.config_path) as f: 
                 self.config = yaml.safe_load(f)
             return self._validate_required_keys()
+        
         except Exception as e: 
-            print(f'Error: {e}')
+            print(f'Error checking config: {e}')
             return False
 
-          
         
     def check_camera(self):
         ### test what kind of camera it is, and see if the config camera params work. 
