@@ -1,6 +1,41 @@
-
 from enum import Enum, auto
 import time
+
+from health import (
+    SystemHealth,
+    SystemState,
+    BatteryState,
+    LinkState
+)
+
+
+
+'''
+case structure: 
+Everything is good if: 
+
+
+reduce capture rate if: 
+- the battery is getting pretty low
+- the raspberry pi is getting pretty hot.
+- the raspberry pi is running out of storage in tx buffer. 
+    (after sending the images to the ground station, delete the images in tx_buffer to maintain large storage.)
+- OPTIONAL/IMPLEMENT LATER: if there seems to be NO animals or crops on screen. 
+
+    
+
+turn off capturing all together if: 
+- we are preflight/barely taking off
+- the system state is critical 
+    the system state is critical if: 
+    - there is NO link to the ground station
+    - the drone battery is CRITICALLY low
+    - the raspberry pi is SUPER hot
+
+dont send images if: 
+- the link is not good
+
+'''
 
 class MissionState(Enum):
     INIT = auto()
@@ -10,12 +45,6 @@ class MissionState(Enum):
     DEGRADED = auto()
     FAILSAFE = auto()
     SHUTDOWN = auto()
-
-class BatteryState(Enum):
-    OK = auto()
-    LOW = auto()
-    CRITICAL = auto()
-    UNKNOWN = auto()
 
 
 
