@@ -7,14 +7,10 @@ import os
 import pathlib
 
 # --- 1. Configuration ---
-
-# TODO: Change this to point to your data directory
 DATA_DIR = 'images'
-# TODO: Change this to the name you want for your final model
 MODEL_NAME = 'animal_binary_classifier'
 
-# Model parameters
-IMG_SIZE = (224, 224) # Input size for MobileNetV2
+IMG_SIZE = (224, 224) 
 BATCH_SIZE = 32
 EPOCHS = 10
 
@@ -23,7 +19,6 @@ def main():
     
     # --- 2. Load Data ---
     print("Loading data...")
-    # Create a training dataset (80% of the data)
     train_dataset = tf.keras.utils.image_dataset_from_directory(
         data_dir,
         validation_split=0.2,
@@ -31,10 +26,9 @@ def main():
         seed=123,
         image_size=IMG_SIZE,
         batch_size=BATCH_SIZE,
-        label_mode='binary' # Perfect for Yes/No (2 classes)
+        label_mode='binary'
     )
 
-    # Create a validation dataset (20% of the data)
     validation_dataset = tf.keras.utils.image_dataset_from_directory(
         data_dir,
         validation_split=0.2,
@@ -48,50 +42,45 @@ def main():
     class_names = train_dataset.class_names
     print(f"Found classes: {class_names}")
 
-    # Configure the dataset for high performance
+    # --- 3. Augmentation & Performance ---
     AUTOTUNE = tf.data.AUTOTUNE
-    train_dataset = train_dataset.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
-    validation_dataset = validation_dataset.cache().prefetch(buffer_size=AUTOTUNE)
 
-    # --- 3. Build the Model ---
-    print("Building model...")
-    
-    # Create a data augmentation layer
+    # Data Augmentation (Applied only to training data)
     data_augmentation = Sequential([
         layers.RandomFlip('horizontal'),
         layers.RandomRotation(0.2),
         layers.RandomZoom(0.2),
-    ], name="data_augmentation")
+    ])
 
-    # Get the MobileNetV2 base model (pre-trained on ImageNet)
-    # We set include_top=False to remove its original 1000-class classifier
+    train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x, training=True), y), 
+                                      num_parallel_calls=AUTOTUNE)
+    
+    train_dataset = train_dataset.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    validation_dataset = validation_dataset.cache().prefetch(buffer_size=AUTOTUNE)
+
+    # --- 4. Build the Model ---
+    print("Building model...")
+    
+    # Get MobileNetV2 base
     base_model = tf.keras.applications.MobileNetV2(
         input_shape=IMG_SIZE + (3,),
         include_top=False,
         weights='imagenet'
     )
-    
-    # Freeze the base model so we only train our new layers
-    base_model.trainable = False
-    
-    # This layer scales pixel values from [0, 255] to [-1, 1],
-    # which is what MobileNetV2 was trained on.
+    base_model.trainable = False 
+
+    # MobileNetV2 specific preprocessing
     preprocess_input = tf.keras.applications.mobilenet_v2.preprocess_input
 
-    # Create our new model
     inputs = keras.Input(shape=IMG_SIZE + (3,))
-    x = data_augmentation(inputs)
-    x = preprocess_input(x)
-    x = base_model(x, training=False) # Run the base model in inference mode
-    x = layers.GlobalAveragePooling2D()(x) # Pool the features
-    x = layers.Dropout(0.2)(x) # Add dropout for regularization
-    # Our final prediction layer: 1 neuron with a sigmoid activation
-    # This will output a single number between 0 (class 0) and 1 (class 1)
+    x = preprocess_input(inputs)
+    x = base_model(x, training=False) 
+    x = layers.GlobalAveragePooling2D()(x)
+    x = layers.Dropout(0.2)(x)
     outputs = layers.Dense(1, activation='sigmoid')(x)
     
     model = keras.Model(inputs, outputs)
 
-    # --- 4. Compile the Model ---
     model.compile(
         optimizer=keras.optimizers.Adam(learning_rate=0.0001),
         loss=keras.losses.BinaryCrossentropy(),
@@ -100,7 +89,7 @@ def main():
     
     model.summary()
 
-    # --- 5. Train the Model ---
+    # --- 5. Train ---
     print("Starting training...")
     history = model.fit(
         train_dataset,
@@ -108,50 +97,38 @@ def main():
         epochs=EPOCHS
     )
 
-    # --- 6. Plot Training Results ---
+    # --- 6. Save & Convert ---
     plot_history(history, f"{MODEL_NAME}_training_plot.png")
 
-    # --- 7. Save the Final Keras Model ---
-    keras_model_path = f"{MODEL_NAME}.keras"
-    model.save(keras_model_path)
-    print(f"Full Keras model saved to: {keras_model_path}")
-
-    # --- 8. Convert and Save the TFLite Model ---
-    print("Converting to TensorFlow Lite...")
+    # Save as .keras
+    model.save(f"{MODEL_NAME}.keras")
+    
+    # Convert to TFLite with Dynamic Range Quantization
+    print("Converting to TFLite...")
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
-    converter.optimizations = [tf.lite.Optimize.DEFAULT] # Optimizes for size and speed
+    converter.optimizations = [tf.lite.Optimize.DEFAULT] 
     tflite_model = converter.convert()
     
-    tflite_model_path = f"{MODEL_NAME}.tflite"
-    with open(tflite_model_path, 'wb') as f:
+    with open(f"{MODEL_NAME}.tflite", 'wb') as f:
         f.write(tflite_model)
-    print(f"TFLite model saved to: {tflite_model_path}")
+    print(f"✅ Deployment-ready model saved: {MODEL_NAME}.tflite")
 
 def plot_history(history, save_path):
-    """Plots the training and validation accuracy and loss."""
+    # (Same as your original plot_history function)
     acc = history.history['accuracy']
     val_acc = history.history['val_accuracy']
     loss = history.history['loss']
     val_loss = history.history['val_loss']
-
     plt.figure(figsize=(8, 8))
     plt.subplot(2, 1, 1)
-    plt.plot(acc, label='Training Accuracy')
-    plt.plot(val_acc, label='Validation Accuracy')
-    plt.legend(loc='lower right')
-    plt.ylabel('Accuracy')
-    plt.title('Training and Validation Accuracy')
-
+    plt.plot(acc, label='Training')
+    plt.plot(val_acc, label='Validation')
+    plt.title('Accuracy')
     plt.subplot(2, 1, 2)
-    plt.plot(loss, label='Training Loss')
-    plt.plot(val_loss, label='Validation Loss')
-    plt.legend(loc='upper right')
-    plt.ylabel('Cross Entropy')
-    plt.title('Training and Validation Loss')
-    plt.xlabel('epoch')
-    
+    plt.plot(loss, label='Training')
+    plt.plot(val_loss, label='Validation')
+    plt.title('Loss')
     plt.savefig(save_path)
-    print(f"Training plot saved to: {save_path}")
 
 if __name__ == '__main__':
     main()
