@@ -9,12 +9,12 @@ import pathlib
 # --- 1. Configuration ---
 
 # TODO: Change this to point to your data directory
-DATA_DIR = 'animal_data'
+DATA_DIR = 'images'
 # TODO: Change this to the name you want for your final model
-MODEL_NAME = 'animal_classifier'
+MODEL_NAME = 'animal_binary_classifier'
 
 # Model parameters
-IMG_SIZE = (160, 160) # Input size for MobileNetV2
+IMG_SIZE = (224, 224) # Input size for MobileNetV2
 BATCH_SIZE = 32
 EPOCHS = 10
 
