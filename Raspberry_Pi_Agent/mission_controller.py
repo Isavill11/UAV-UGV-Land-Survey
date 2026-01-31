@@ -56,8 +56,12 @@ class MissionController:
         self.health = system_health
         self.cfg = cfg
         self.capture = capture
+        self.last_system_state = None
+        self.current_system_state = None
 
     def update(self):
+        
+        
         if self.state == MissionState.INIT:
             if self.health.is_safe(self.cfg):
                 self._transition(MissionState.PREFLIGHT)
@@ -71,7 +75,7 @@ class MissionController:
                 self._transition(MissionState.CAPTURING)
 
         elif self.state == MissionState.CAPTURING:
-            if self.health.radio.is_bad(self.cfg["link_thresholds"]):
+            if self.health.radio.evaluate(self.cfg["link_thresholds"]):
                 self._transition(MissionState.DEGRADED)
             elif not self.health.is_safe(self.cfg):
                 self._transition(MissionState.FAILSAFE)
