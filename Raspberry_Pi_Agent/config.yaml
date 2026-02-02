@@ -1,15 +1,9 @@
+
 platform:
   name: ""
   id: ""
   location: ""
   type: ""   # uav | ugv | ground_station
-
-
-
-
-
-
-
 
 camera:
   id: ""
@@ -29,12 +23,6 @@ camera:
     jpeg_quality: 0 
     save_dir: None
 ### etc etc etc
-
-
-
-
-
-
 
 
 preprocessing:
@@ -115,7 +103,6 @@ thermal_management:
     critical:
       capture_rate_hz: 0
       tx_enabled: false
-
 
 
 battery_status: 
