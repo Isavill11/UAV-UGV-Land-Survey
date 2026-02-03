@@ -104,7 +104,6 @@ thermal_management:
       capture_rate_hz: 0
       tx_enabled: false
 
-
 battery_status: 
   critical_battery: 25
   low_battery: 40
