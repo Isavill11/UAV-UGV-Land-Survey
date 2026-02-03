@@ -63,12 +63,13 @@ def main():
                 
                 # Save the high-res version of the frame
                 # Convert RGB to BGR for OpenCV saving
-                cv2.imwrite(filename, cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+                display_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+
+                cv2.imwrite(filename, display_frame)
                 print(f"📸 Detected! Confidence: {prediction:.2f} | Saved to {filename}")
 
             # E. Local Preview (Optional)
             # Show the live feed with the current confidence score
-            display_frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             cv2.putText(display_frame, f"Conf: {prediction:.2f}", (10, 30), 
                         cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
             cv2.imshow("Drone Spotter Feed", display_frame)

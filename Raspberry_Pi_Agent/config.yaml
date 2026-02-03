@@ -11,6 +11,7 @@ camera:
   dimensions:
     width: 640
     height: 480
+    ratio: 4/3
   capture_profiles:
   CAPTURING:
     interval: 1.0
@@ -47,20 +48,14 @@ preprocessing:
 
 storage:
   local_path: ""
-  max_storage_mb: 0
-  unprocessed_folder: ""
+  max_storage_gb: 64
   processed_folder: ""
   tx_queue_folder: ""
-  max_raw_storage_mb: 0
-  max_processed_storage_mb: 0
   auto_cleanup:
     enabled: false
     threshold_mb: 0
     cleanup_amount_mb: 0
 
-buffering:
-  max_tx_queue_size: 0
-  drop_policy: "oldest"   # oldest | newest | reject
 
 batching:
   enabled: false
@@ -94,16 +89,16 @@ thermal_management:
     critical: 0
   policies:
     cool:
-      capture_rate_hz: 0
+      capture_rate: 0
       tx_enabled: false
     warm:
-      capture_rate_hz: 0
+      capture_rate: 0
       tx_enabled: false
     hot:
-      capture_rate_hz: 0
+      capture_rate: 0
       tx_enabled: false
     critical:
-      capture_rate_hz: 0
+      capture_rate: 0
       tx_enabled: false
 
 
@@ -125,3 +120,9 @@ logging:
   log_thermal: false
   log_power: false
   log_communication: false
+
+
+
+
+
+###### file storage tflite interpreter

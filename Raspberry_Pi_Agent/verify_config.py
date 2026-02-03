@@ -37,6 +37,7 @@ class SelfCheckPrelaunch:
         self.config_path = config_path
         self.config = None
         self.ready = False
+        self.required_keys = ['']
         
     def run(self):
         issues = []
@@ -163,6 +164,10 @@ class SelfCheckPrelaunch:
     
     def _check_required_keys(self):
         print('i am checking if all the keys that are needed to run anything are there.')
+        cfg = self.config
+        for key in cfg: 
+            
+        
     
 
 
