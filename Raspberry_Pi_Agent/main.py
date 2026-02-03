@@ -1,22 +1,40 @@
 ## MAIN LOOP DECISION MAKING FOR RASPI AGENT 
-
+import logging
 from enum import Enum, auto
 from verify_config import SelfCheckPrelaunch
 from system_builder import SystemBuilder
 from health import SystemHealth, PiHealth, LinkHealth
 import time
 
+logging.basicConfig(
+    level=logging.INFO,  # or DEBUG
+    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+
 
 ##### upon each instance ALWAYS self check
-
 checker = SelfCheckPrelaunch('/Raspberry_Pi_Agent/config.yaml')
 
-if not checker.run():
-    raise RuntimeError('Prelaunch check failed.')
+issues = checker.run()
 
-#### upon each instance, ALWAYS rebuild
+if checker.ready: 
+    cfg = checker.config
+else: 
+    logger.error("❌ Preflight checks failed")
 
-cfg = checker.config
+    for issue in issues:
+        logger.error(
+            "[%s] %s",
+            issue.subsystem,
+            issue.message
+        )
+    raise SystemExit(1)
+
+
+############# self check complete, continue!!!
+
 
 mission, capture = SystemBuilder.build()
 system_health = SystemHealth()

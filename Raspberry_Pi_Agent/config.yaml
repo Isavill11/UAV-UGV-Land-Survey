@@ -1,14 +1,16 @@
 
 platform:
-  name: ""
+  name: "" # uav | ugv | ground_station
   id: ""
-  location: ""
-  type: ""   # uav | ugv | ground_station
+  location: ""  
+  home : "" 
 
 camera:
   id: ""
   type: "" ## PiCam | Webcam | None
-
+  dimensions:
+    width: 640
+    height: 480
   capture_profiles:
   CAPTURING:
     interval: 1.0
