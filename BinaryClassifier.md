@@ -38,7 +38,7 @@ pip install tensorflow opencv-python numpy matplotlib
 ### 2. Data Preparation
 Organize your raw images and YOLO labels, then run the script to generate the training database:
 ```bash
-python prepare_data.py
+python prepare_classifier_images.py
 ```
 
 ### 3. Model Training
@@ -46,10 +46,10 @@ The training script uses Two-Phase Fine-Tuning:
 Phase 1: Trains the top classification layers while the base model is frozen.
 Phase 2: Unfreezes the base model with a very low learning rate ($1 \times 10^{-5}$) to adapt the pre-trained weights to aerial agricultural textures.
 ```bash
-python train_model.py
+python jesse_this_is_the_training_file.py
 ```
 ### 4. Model Testing
 Test your model's confidence on a local folder of images before deployment:
 ```bash
-python test_model.py
+python binary_classifier_test.py
 ```
