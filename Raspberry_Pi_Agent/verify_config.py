@@ -37,6 +37,8 @@ class SelfCheckPrelaunch:
         self.config_path = config_path
         self.config = None
         self.ready = False
+        self.required_keys = [['platform', 'name', 'id'], ['camera', 'id', 'dimensions', 'capturing_profiles'], ['storage', 'local_path'],
+                              ['batching'], ['thermal_management', 'thresholds_c', 'policies'], ['battery_status']]
         
     def run(self):
         issues = []

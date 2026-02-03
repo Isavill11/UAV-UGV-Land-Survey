@@ -47,6 +47,7 @@ preprocessing:
 
 storage:
   local_path: ""
+  log_path: "" 6+
   max_storage_mb: 0
   unprocessed_folder: ""
   processed_folder: ""
@@ -58,12 +59,8 @@ storage:
     threshold_mb: 0
     cleanup_amount_mb: 0
 
-buffering:
-  max_tx_queue_size: 0
-  drop_policy: "oldest"   # oldest | newest | reject
 
 batching:
-  enabled: false
   batch_size: 0
   time_threshold_sec: 0
 
@@ -73,10 +70,6 @@ communication:
   ground_station_port: 0
   uav_id: ""
   ugv_id: ""
-  encryption:
-    enabled: false
-    method: ""
-    key: ""
   max_packet_size_bytes: 0
   link_thresholds:
     rssi_degraded: 70
@@ -85,7 +78,6 @@ communication:
   max_packet_loss_percent: 0.0
 
 thermal_management:
-  enabled: false
   read_interval_sec: 0
   thresholds_c:
     cool: 0
@@ -95,10 +87,10 @@ thermal_management:
   policies:
     cool:
       capture_rate_hz: 0
-      tx_enabled: false
+      tx_enabled: true
     warm:
       capture_rate_hz: 0
-      tx_enabled: false
+      tx_enabled: true
     hot:
       capture_rate_hz: 0
       tx_enabled: false
@@ -117,10 +109,4 @@ coordination:
   upstream_vehicle_id: ""
   downstream_vehicle_id: ""
 
-logging:
-  level: ""   # DEBUG | INFO | WARNING | ERROR
-  log_dir: ""
-  log_boot_checks: false
-  log_thermal: false
-  log_power: false
-  log_communication: false
+
