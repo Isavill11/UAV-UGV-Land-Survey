@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pathlib
 
 # --- 1. CONFIGURATION ---
-DATA_DIR = 'images'
+DATA_DIR = 'D:/robert_scripts/images'
 MODEL_NAME = 'survey_animal_classifier'
 IMG_SIZE = (224, 224)
 BATCH_SIZE = 32
@@ -26,7 +26,7 @@ def main():
     )
 
     AUTOTUNE = tf.data.AUTOTUNE
-    train_ds = train_ds.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+    train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
     val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
     # --- 3. SURVEY-OPTIMIZED AUGMENTATION (Noise & Lighting) ---

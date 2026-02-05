@@ -5,10 +5,10 @@ import os
 import glob
 
 # --- CONFIGURATION ---
-MODEL_PATH = 'animal_binary_classifier.tflite'
+MODEL_PATH = 'survey_animal_classifier.tflite'
 TEST_IMAGE_DIR = 'test_images'  # Create this folder and put some images in it
 IMG_SIZE = (224, 224)
-THRESHOLD = 0.5  # Confidence threshold for "Animal"
+THRESHOLD = 0.3 # Confidence threshold for "Animal"
 
 def load_and_preprocess(image_path):
     # Load image with OpenCV
@@ -61,12 +61,14 @@ def main():
         
         # 5. Display the result
         display_text = f"{label} ({prediction:.2f})"
-        cv2.putText(original_img, display_text, (10, 30), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
         
         print(f"Image: {os.path.basename(path)} | Score: {prediction:.4f} | Label: {label}")
+        resize = cv2.resize(original_img, [640, 420])
+        cv2.putText(resize, display_text, (10, 30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
         
-        cv2.imshow('TFLite Model Test', original_img)
+        cv2.imshow('TFLite Model Test', resize)
         if cv2.waitKey(0) & 0xFF == ord('q'): # Press 'q' to move to next or quit
             break
 
