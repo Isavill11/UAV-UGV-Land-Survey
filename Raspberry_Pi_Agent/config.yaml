@@ -12,18 +12,18 @@ camera:
     width: 640
     height: 480
   capture_profiles:
-  CAPTURING:
-    interval: 1.0
-    jpeg_quality: 90
-    save_dir: captured_images/full
-  DEGRADED:
-    interval: 5.0
-    jpeg_quality: 50
-    save_dir: captured_images/degraded
-  CRITICAL:
-    interval: 0
-    jpeg_quality: 0 
-    save_dir: None
+    CAPTURING:
+      interval: 1.0
+      jpeg_quality: 90
+      save_dir: captured_images/full
+    DEGRADED:
+      interval: 5.0
+      jpeg_quality: 50
+      save_dir: captured_images/degraded
+    CRITICAL:
+      interval: 0
+      jpeg_quality: 0 
+      save_dir: None
 ### etc etc etc
 
 
@@ -47,9 +47,8 @@ preprocessing:
 
 storage:
   local_path: ""
-  log_path: "" 6+
+  log_path: "" 
   max_storage_mb: 0
-  unprocessed_folder: ""
   processed_folder: ""
   tx_queue_folder: ""
   max_raw_storage_mb: 0
@@ -65,12 +64,11 @@ batching:
   time_threshold_sec: 0
 
 communication:
-  protocol: ""   # udp | tcp | mavlink | custom
-  ground_station_ip: ""
-  ground_station_port: 0
+  protocol: "udp"   # udp | tcp | mavlink | custom
+  ground_station_ip: "0.0.0.0"
+  ground_station_port: 14550
   uav_id: ""
   ugv_id: ""
-  max_packet_size_bytes: 0
   link_thresholds:
     rssi_degraded: 70
     rssi_critical: 85
@@ -78,7 +76,7 @@ communication:
   max_packet_loss_percent: 0.0
 
 thermal_management:
-  read_interval_sec: 0
+  read_interval_sec: 10
   thresholds_c:
     cool: 0
     warm: 0
