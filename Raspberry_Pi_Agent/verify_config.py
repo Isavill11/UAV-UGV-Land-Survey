@@ -7,16 +7,14 @@ import cv2
 import os
 import platform
 from pymavlink import mavutil
-from picamera2 import Picamera2 # The raspi camera library
+try:
+    from picamera2 import Picamera2
+except ImportError:
+    Picamera2 = None
 from dataclasses import dataclass
 from pathlib import Path
-from Raspberry_Pi_Agent.capture_controller import CaptureController
-from Raspberry_Pi_Agent.mission_controller import MissionController
 
 
-
-MIN_STORAGE_MB_FATAL = 500
-MIN_STORAGE_MB_WARN = 2000
 
 
 REQUIRED_KEYS = {
@@ -87,29 +85,24 @@ class SelfCheckPrelaunch:
             error = check()
             if error: 
                 issues.append(error)
-      
+                
         fatal = [e for e in issues if e.severity == "ERROR"]
         self.ready = len(fatal) == 0
 
 
     def _check_config(self) -> PrecheckError | None:
-        if not isinstance(self.config, dict):
-            return PrecheckError(
-                "Config",
-                "Config root must be a YAML dictionary",
-                time.time()
-                )
-
-        try:
-            with open(self.config_path) as f:
+        
+        try: 
+            with open(self.config_path) as f: 
                 self.config = yaml.safe_load(f)
-
-            if self.config is None:
+                
+            if not isinstance(self.config, dict):
                 return PrecheckError(
                     "Config",
-                    "Config file is empty or invalid YAML",
+                    "Config root must be a YAML dictionary",
                     time.time()
-                )
+                    )
+
             return None
 
         except FileNotFoundError as e:
@@ -135,9 +128,9 @@ class SelfCheckPrelaunch:
         cam_res = (dims["width"], dims["height"])
         
         cam_type = self.config["camera"]["type"]
+        
         if cam_type == "None":
             return None
-
 
         if os_name == 'Linux': 
             try: 
@@ -162,7 +155,7 @@ class SelfCheckPrelaunch:
                     time.time())
             finally:
                 picam2.stop()
-                return None
+
 
         elif os_name == 'Windows': 
             cam = cv2.VideoCapture(0)
@@ -174,15 +167,19 @@ class SelfCheckPrelaunch:
                 )
             cam.release()
             print('Windows webcam checked instead of Picam.')
+            
+            ## TODO: Camera index, capture profiles to capture controller. default res and dimentions.
+            
             return None
 
     
     def _check_storage(self):
         issue = []
         storage_path = self.config['storage']['local_path']
+        MIN_STORAGE_MB_WARN = self.config['storage']['min_storage_mb_warn']
+        MIN_STORAGE_MB_FATAL = self.config['storage']['min_storage_mb_fatal']
         
         if not storage_path:
-
             vehicle = self.config['platform']['name'] + '_' + str(self.config['platform']['id'])
             home_dir = os.path.expanduser('~')
             path = os.path.join(home_dir, f'{vehicle}_Mission')
@@ -225,6 +222,8 @@ class SelfCheckPrelaunch:
                 time.time(), 
                 severity="WARNING",
             )
+            
+        ## TODO: Put storage paths in capture controller and mission planner. 
         
         return None
 
@@ -262,6 +261,7 @@ class SelfCheckPrelaunch:
         finally:
             master.close()
 
+        ### TODO: put network endpoints in DroneHealth in health.py to recieve and send mavlink packages.
         return None
     
     def _check_thermal(self):
@@ -324,6 +324,8 @@ class SelfCheckPrelaunch:
                 time.time(),
                 'ERROR'
             )
+            
+        ### TODO: read interval goes into health PiHealth for temp. and thresholds
         
     
     def _check_power(self):
@@ -379,7 +381,8 @@ class SelfCheckPrelaunch:
             battery_cfg = self.config.get('battery_status', {})
             low_thresh = battery_cfg.get('low_battery', 20)
             crit_thresh = battery_cfg.get('critical_battery', 10)
-
+            
+            ### TODO: battery config, low thresh, and crit thresh go into health controller.
             if battery_pct is None or battery_pct < 0:
                 return PrecheckError(
                     'Power',
@@ -450,14 +453,22 @@ class SelfCheckPrelaunch:
                             time.time()
                         )
                     )
-                if expected == str and value.strip() == "":
-                    errors.append(
-                        PrecheckError(
-                            "Config",
-                            f"{full_path} cannot be empty",
-                            time.time()
+                try:
+                    value.strip == ''
+                except Exception as e: 
+                    errors.append(PrecheckError('Config', 
+                                                'no idea what kind of file this is', 
+                                                time.time(), 
+                                                e))
+                    if expected == str:
+                        errors.append(
+                            PrecheckError(
+                                "Config",
+                                f"{full_path} cannot be empty",
+                                time.time()
+                            )
                         )
-                    )
+                
         return errors
 
 

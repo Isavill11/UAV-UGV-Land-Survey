@@ -48,7 +48,8 @@ preprocessing:
 storage:
   local_path: ""
   log_path: "" 
-  max_storage_mb: 0
+  min_storage_mb_warn: 2000
+  min_storage_mb_fatal: 500
   processed_folder: ""
   tx_queue_folder: ""
   max_raw_storage_mb: 0
