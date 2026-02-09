@@ -1,77 +1,98 @@
 import cv2
 import os
+import glob
 import random
+import shutil
 
 # --- CONFIGURATION ---
-IMAGE_DIR = '/Users/robert.esquivel/Documents/Programming_Stuff/PythonProject2/CowSpots.v2i.yolov8/train/images'
-LABEL_DIR = '/Users/robert.esquivel/Documents/Programming_Stuff/PythonProject2/CowSpots.v2i.yolov8/train/labels'
-OUTPUT_ANIMAL = 'images/animal'
-OUTPUT_NO_ANIMAL = 'images/no_animal'
+SOURCE_IMG_DIR = 'raw_images'
+SOURCE_LABEL_DIR = 'labels'
+OUTPUT_DIR = 'images'
+IMG_SIZE = (224, 224)
+PADDING_PERCENT = 0.30  # 30% padding around the cow
 
-TARGET_SIZE = (224, 224)
-PADDING_FACTOR = 0.3  # Adds 30% extra space for context
-PATCHES_PER_EMPTY_IMG = 50
-HARD_NEGATIVES_PER_IMG = 10
+def prepare_folders():
+    if os.path.exists(OUTPUT_DIR):
+        shutil.rmtree(OUTPUT_DIR)
+    os.makedirs(f"{OUTPUT_DIR}/yes_animals")
+    os.makedirs(f"{OUTPUT_DIR}/no_animals")
 
-os.makedirs(OUTPUT_ANIMAL, exist_ok=True)
-os.makedirs(OUTPUT_NO_ANIMAL, exist_ok=True)
+def extract_crops():
+    img_paths = glob.glob(os.path.join(SOURCE_IMG_DIR, "*.jpg"))
+    animal_count = 0
+    bg_count = 0
 
-
-def is_overlapping(new_box, existing_boxes):
-    nx1, ny1, nx2, ny2 = new_box
-    for (ex1, ey1, ex2, ey2) in existing_boxes:
-        if not (nx2 < ex1 or nx1 > ex2 or ny2 < ey1 or ny1 > ey2):
-            return True
-    return False
-
-
-def crop_cattle():
-    img_files = [f for f in os.listdir(IMAGE_DIR) if f.endswith(('.jpg', '.png'))]
-    print(f"🔍 Processing {len(img_files)} images with {PADDING_FACTOR * 100}% padding...")
-
-    for img_name in img_files:
-        img = cv2.imread(os.path.join(IMAGE_DIR, img_name))
+    for img_path in img_paths:
+        base_name = os.path.basename(img_path).replace('.jpg', '')
+        label_path = os.path.join(SOURCE_LABEL_DIR, f"{base_name}.txt")
+        
+        img = cv2.imread(img_path)
         if img is None: continue
         h, w, _ = img.shape
 
-        label_path = os.path.join(LABEL_DIR, img_name.rsplit('.', 1)[0] + '.txt')
-        existing_boxes = []
-
-        if os.path.exists(label_path) and os.path.getsize(label_path) > 0:
+        # 1. Extract YES_ANIMALS (with padding)
+        if os.path.exists(label_path):
             with open(label_path, 'r') as f:
-                lines = f.readlines()
-                for i, line in enumerate(lines):
+                for i, line in enumerate(f.readlines()):
                     parts = line.split()
-                    if len(parts) < 5: continue
+                    # YOLO format: class x_center y_center width height
+                    cx, cy, nw, nh = map(float, parts[1:])
+                    
+                    # Convert to pixel coordinates
+                    x1 = int((cx - nw/2) * w)
+                    y1 = int((cy - nh/2) * h)
+                    x2 = int((cx + nw/2) * w)
+                    y2 = int((cy + nh/2) * h)
 
-                    x_c, y_c, wb, hb = map(float, parts[1:5])
-
-                    # Apply Padding to help the model see the cow's silhouette
-                    wb_p, hb_p = wb * (1 + PADDING_FACTOR), hb * (1 + PADDING_FACTOR)
-
-                    x1, y1 = max(0, int((x_c - wb_p / 2) * w)), max(0, int((y_c - hb_p / 2) * h))
-                    x2, y2 = min(w, int((x_c + wb_p / 2) * w)), min(h, int((y_c + hb_p / 2) * h))
-                    existing_boxes.append((x1, y1, x2, y2))
+                    # Add Padding
+                    pw, ph = int((x2-x1) * PADDING_PERCENT), int((y2-y1) * PADDING_PERCENT)
+                    x1, y1 = max(0, x1-pw), max(0, y1-ph)
+                    x2, y2 = min(w, x2+pw), min(h, y2+ph)
 
                     crop = img[y1:y2, x1:x2]
                     if crop.size > 0:
-                        resized = cv2.resize(crop, TARGET_SIZE, interpolation=cv2.INTER_CUBIC)
-                        cv2.imwrite(f"{OUTPUT_ANIMAL}/{i}_{img_name}", resized)
+                        crop = cv2.resize(crop, IMG_SIZE)
+                        cv2.imwrite(f"{OUTPUT_DIR}/yes_animals/{base_name}_{i}.jpg", crop)
+                        animal_count += 1
 
-            for j in range(HARD_NEGATIVES_PER_IMG):
-                rx, ry = random.randint(0, w - TARGET_SIZE[0]), random.randint(0, h - TARGET_SIZE[1])
-                new_box = (rx, ry, rx + TARGET_SIZE[0], ry + TARGET_SIZE[1])
-                if not is_overlapping(new_box, existing_boxes):
-                    bg_crop = img[ry:ry + TARGET_SIZE[1], rx:rx + TARGET_SIZE[0]]
-                    cv2.imwrite(f"{OUTPUT_NO_ANIMAL}/hard_neg_{j}_{img_name}", bg_crop)
-        else:
-            for k in range(PATCHES_PER_EMPTY_IMG):
-                rx, ry = random.randint(0, w - TARGET_SIZE[0]), random.randint(0, h - TARGET_SIZE[1])
-                bg_crop = img[ry:ry + TARGET_SIZE[1], rx:rx + TARGET_SIZE[0]]
-                cv2.imwrite(f"{OUTPUT_NO_ANIMAL}/patch_{k}_{img_name}", bg_crop)
+        # 2. Extract NO_ANIMALS (Random Background Patches)
+        # We start by taking 5 patches per image
+        for j in range(5):
+            rx = random.randint(0, w - IMG_SIZE[0])
+            ry = random.randint(0, h - IMG_SIZE[1])
+            bg_crop = img[ry:ry+IMG_SIZE[1], rx:rx+IMG_SIZE[0]]
+            cv2.imwrite(f"{OUTPUT_DIR}/no_animals/{base_name}_bg_{j}.jpg", bg_crop)
+            bg_count += 1
 
-    print("✅ Cropping complete.")
+    return animal_count, bg_count
 
+def balance_data():
+    yes_dir = f"{OUTPUT_DIR}/yes_animals"
+    no_dir = f"{OUTPUT_DIR}/no_animals"
+    
+    yes_files = os.listdir(yes_dir)
+    no_files = os.listdir(no_dir)
+    
+    print(f"Initial Counts - Animals: {len(yes_files)}, Background: {len(no_files)}")
+
+    if len(yes_files) > len(no_files):
+        # Too many animals, delete the excess
+        diff = len(yes_files) - len(no_files)
+        to_delete = random.sample(yes_files, diff)
+        for f in to_delete:
+            os.remove(os.path.join(yes_dir, f))
+    else:
+        # Too much background, delete the excess
+        diff = len(no_files) - len(yes_files)
+        to_delete = random.sample(no_files, diff)
+        for f in to_delete:
+            os.remove(os.path.join(no_dir, f))
+
+    print(f"⚖️ Final Balanced Counts: {len(os.listdir(yes_dir))} per class.")
 
 if __name__ == "__main__":
-    crop_cattle()
+    prepare_folders()
+    print("✂️ Extracting crops...")
+    extract_crops()
+    balance_data()
+    print("🚀 Data ready for balanced training.")
