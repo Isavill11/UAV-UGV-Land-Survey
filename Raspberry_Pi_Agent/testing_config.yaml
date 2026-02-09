@@ -1,13 +1,13 @@
 
 platform:
   name: "uav" # uav | ugv | ground_station
-  id: ""
+  id: "1"
   location: ""  
   home : "" 
 
 camera:
-  id: ""
-  type: "" ## PiCam | Webcam | None
+  id: "111"
+  type: "Webcam" ## PiCam | Webcam | None
   dimensions:
     width: 640
     height: 480
@@ -67,8 +67,8 @@ communication:
   protocol: "udp"   # udp | tcp | mavlink | custom
   ground_station_ip: "0.0.0.0"
   ground_station_port: 14550
-  uav_id: ""
-  ugv_id: ""
+  uav_id: "" ### 1
+  ugv_id: "" ### 2
   link_thresholds:
     rssi_degraded: 70
     rssi_critical: 85
@@ -78,9 +78,8 @@ communication:
 thermal_management:
   read_interval_sec: 10
   thresholds_c:
-    cool: 0
-    warm: 0
-    hot: 0
+    warm: 60
+    hot: 100
     critical: 0
   policies:
     cool:

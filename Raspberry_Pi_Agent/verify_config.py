@@ -19,7 +19,7 @@ MIN_STORAGE_MB_FATAL = 500
 MIN_STORAGE_MB_WARN = 2000
 
 
-REQUIRED_SCHEMA = {
+REQUIRED_KEYS = {
     "platform": {
         "name": str,
         "id": str,
@@ -63,9 +63,8 @@ class SelfCheckPrelaunch:
         self.config_path = config_path
         self.config = None
         self.ready = False
-        self.required_keys = [['platform', 'name', 'id'], ['camera', 'id', 'dimensions', 'capturing_profiles'], ['storage', 'local_path'],
-                              ['batching'], ['thermal_management', 'thresholds_c', 'policies'], ['battery_status']]
         self.endpoint = None
+
     def run(self):
         issues = []
 
@@ -80,8 +79,8 @@ class SelfCheckPrelaunch:
 
         for check in [
         self._check_camera, ### Done
-        self._check_network, ### 
-        self._check_power,
+        self._check_network, ### Done
+        self._check_power, ### Done
         self._check_storage, ### Done
         self._check_thermal, ### Done
         ]: 
@@ -179,26 +178,36 @@ class SelfCheckPrelaunch:
 
     
     def _check_storage(self):
+        issue = []
         storage_path = self.config['storage']['local_path']
         
-        if not storage_path: 
-            return PrecheckError(
-                'Storage', 
-                "The local storage path does not exist", 
-                time.time()
-            )
-            
-        path = Path(storage_path)
+        if not storage_path:
 
-        if not path.exists() or not path.is_dir():
-            return PrecheckError(
+            vehicle = self.config['platform']['name'] + '_' + str(self.config['platform']['id'])
+            home_dir = os.path.expanduser('~')
+            path = os.path.join(home_dir, f'{vehicle}_Mission')
+            
+            issue.append(PrecheckError(
                 'Storage', 
-                f'the path "{path}" does not exist',
-                time.time(),
-                severity="ERROR"
+                f"The local storage path {storage_path} didnt exist. Creating new one, {path}", 
+                time.time(), 
+                "WARNING"
+                )
             )
-        
-        usage = psutil.disk_usage(storage_path)
+
+            os.mkdir(path)
+        else:
+            path = Path(storage_path)
+
+            if not path.exists() or not path.is_dir():
+                return PrecheckError(
+                    'Storage', 
+                    f'the path "{path}" did not exist, ',
+                    time.time(),
+                    severity="ERROR"
+                )
+                    
+        usage = psutil.disk_usage(path)
         amount_available_mb = usage.free // (1024 * 1024)
                 
         ### we need at least 500MB to run 
@@ -289,9 +298,9 @@ class SelfCheckPrelaunch:
                 time.time()
             )
             
-        cool, warm, hot = thresholds['cool'], thresholds['warm'], thresholds['hot']
+        warm, hot = thresholds['warm'], thresholds['hot']
         
-        if cool < warm < hot: 
+        if warm < hot: 
             if temp_celsius < warm: 
                 return None
             elif temp_celsius < hot: 
@@ -401,7 +410,7 @@ class SelfCheckPrelaunch:
 
 
 
-    def _validate_schema(self, schema, config_section, path=""):
+    def _validate_keys(self, schema, config_section, path=""):
         errors = []
 
         for key, expected in schema.items():
@@ -430,7 +439,7 @@ class SelfCheckPrelaunch:
                     )
                 else:
                     errors.extend(
-                        self._validate_schema(expected, value, full_path)
+                        self._validate_keys(expected, value, full_path)
                     )
             else:
                 if not isinstance(value, expected):
@@ -454,7 +463,7 @@ class SelfCheckPrelaunch:
 
 
     def _check_required_keys(self) -> PrecheckError | None:
-        errors = self._validate_schema(REQUIRED_SCHEMA, self.config)
+        errors = self._validate_keys(REQUIRED_KEYS, self.config)
 
         if errors:
             return errors[0]
