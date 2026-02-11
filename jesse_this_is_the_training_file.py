@@ -3,102 +3,56 @@ from tensorflow import keras
 from tensorflow.keras import layers
 import pathlib
 
-# --- 1. CONFIGURATION ---
+# --- CONFIG ---
 DATA_DIR = 'images'
-MODEL_NAME = 'mini_survey_classifier'
+MODEL_NAME = 'survey_animal_classifier'
 IMG_SIZE = (224, 224)
-BATCH_SIZE = 16  # Smaller batches help the model focus on noisy agricultural details
-MAX_EPOCHS = 50
 
 def main():
-    data_dir = pathlib.Path(DATA_DIR)
-    
-    # --- 2. LOAD BALANCED DATA ---
+    # Load Data
     train_ds = tf.keras.utils.image_dataset_from_directory(
-        data_dir,
-        validation_split=0.2,
-        subset="training",
-        seed=123,
-        image_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
-        label_mode='binary'
+        DATA_DIR, validation_split=0.2, subset="training", seed=123,
+        image_size=IMG_SIZE, batch_size=32, label_mode='binary'
     )
     val_ds = tf.keras.utils.image_dataset_from_directory(
-        data_dir,
-        validation_split=0.2,
-        subset="validation",
-        seed=123,
-        image_size=IMG_SIZE,
-        batch_size=BATCH_SIZE,
-        label_mode='binary'
+        DATA_DIR, validation_split=0.2, subset="validation", seed=123,
+        image_size=IMG_SIZE, batch_size=32, label_mode='binary'
     )
 
-    # --- 3. AUGMENTATION ---
-    # We keep this simple so we don't distort the animal's texture too much
-    data_augmentation = keras.Sequential([
-        layers.RandomFlip("horizontal_and_vertical"),
-        layers.RandomRotation(0.1),
-    ])
+    # 1. Base Model with ImageNet Weights
+    base_model = tf.keras.applications.MobileNetV2(
+        input_shape=(224, 224, 3), include_top=False, weights='imagenet'
+    )
+    
+    # 2. Unfreeze top 20 layers for texture adaptation
+    base_model.trainable = True
+    for layer in base_model.layers[:-20]:
+        layer.trainable = False
 
-    # --- 4. THE MINIATURIZED MODEL ---
-    # This 3-block structure is much easier for a small dataset to optimize
+    # 3. Build Architecture
     model = keras.Sequential([
-        keras.Input(shape=(224, 224, 3)),
-        data_augmentation,
-        layers.Rescaling(1./255),  # Normalizes pixel values to [0, 1]
-        
-        # Block 1: Low-level edges and color transitions
-        layers.Conv2D(16, (3, 3), activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        
-        # Block 2: Mid-level texture detection (fur vs. grass patterns)
-        layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        
-        # Block 3: High-level shape/silhouette consolidation
-        layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
-        layers.MaxPooling2D(),
-        
-        layers.Flatten(),
-        layers.Dense(64, activation='relu'),
-        layers.Dropout(0.5),  # Prevents the model from memorizing specific grass patches
-        layers.Dense(1, activation='sigmoid')  # Output: 0 (No Animal) to 1 (Yes Animal)
+        layers.Input(shape=(224, 224, 3)),
+        layers.Rescaling(1./127.5, offset=-1), # Mandatory MobileNetV2 scaling
+        base_model,
+        layers.GlobalAveragePooling2D(),
+        layers.Dropout(0.5), # Prevent memorizing grass
+        layers.Dense(1, activation='sigmoid')
     ])
 
-    # --- 5. COMPILATION ---
-    # Using a slightly higher learning rate to "kick" it out of the 0.5 stagnation
-    model.compile(
-        optimizer=keras.optimizers.Adam(learning_rate=1e-3),
-        loss='binary_crossentropy',
-        metrics=['accuracy']
-    )
+    # 4. Compile with slow Learning Rate (1e-5)
+    model.compile(optimizer=keras.optimizers.Adam(1e-5),
+                  loss='binary_crossentropy', metrics=['accuracy'])
 
-    # --- 6. CALLBACKS ---
-    early_stop = tf.keras.callbacks.EarlyStopping(
-        monitor='val_loss', 
-        patience=8, 
-        restore_best_weights=True
-    )
+    # 5. Train
+    print("🚀 Training... If accuracy is >0.70 after 5 epochs, the tiling worked!")
+    model.fit(train_ds, validation_data=val_ds, epochs=30)
 
-    # --- 7. TRAINING ---
-    print(f"🚀 Starting Mini-Surveyor Training...")
-    history = model.fit(
-        train_ds,
-        validation_data=val_ds,
-        epochs=MAX_EPOCHS,
-        callbacks=[early_stop]
-    )
-
-    # --- 8. SAVE & EXPORT ---
+    # 6. Save & Export
     model.save(f"{MODEL_NAME}.keras")
-    
-    # TFLite conversion for Raspberry Pi deployment
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
-    tflite_model = converter.convert()
     with open(f"{MODEL_NAME}.tflite", 'wb') as f:
-        f.write(tflite_model)
-    
-    print(f"✅ Training Complete. Model saved as {MODEL_NAME}.tflite")
+        f.write(converter.convert())
+    print(f"✅ Deployment-ready model saved: {MODEL_NAME}.tflite")
 
 if __name__ == "__main__":
     main()
