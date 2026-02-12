@@ -1,5 +1,5 @@
-from capture_controller import CaptureController
-from mission_controller import MissionController
+from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController
+from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionController
 
 
 class SystemBuilder: 

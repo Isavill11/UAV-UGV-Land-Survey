@@ -3,7 +3,7 @@ import tempfile
 import yaml
 import os
 
-from verify_config import SelfCheckPrelaunch, PrecheckError
+from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch, PrecheckError
 
 
 class TestCasesConfig(unittest.TestCase):

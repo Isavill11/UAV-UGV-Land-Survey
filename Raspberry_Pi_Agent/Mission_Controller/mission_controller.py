@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import time
 
-from health import (
+from Raspberry_Pi_Agent.Mission_Controller.health import (
     SystemHealth,
     SystemState,
     BatteryState,

@@ -13,7 +13,17 @@ except ImportError:
     Picamera2 = None
 from dataclasses import dataclass
 from pathlib import Path
+from .Mission_Controller.health import DroneHealth, PiHealth, LinkHealth
+from .Mission_Controller.mission_controller import MissionController
+from .Mission_Controller.capture_controller import CaptureController
 
+
+
+
+capture_control = CaptureController()
+mission_control = MissionController()
+drone_health = DroneHealth()
+raspi_health = PiHealth()
 
 
 
@@ -126,9 +136,10 @@ class SelfCheckPrelaunch:
         os_name = platform.system()
         dims = self.config["camera"]["dimensions"]
         cam_res = (dims["width"], dims["height"])
-        
+        capture_profiles = self.config['camera']['capture_profiles']
         cam_type = self.config["camera"]["type"]
-        
+        print(capture_profiles.type())
+        print(capture_profiles)
         if cam_type == "None":
             return None
 
@@ -141,12 +152,16 @@ class SelfCheckPrelaunch:
                 picam2.configure(conf)
                 picam2.start()
                 frame = picam2.capture_array()
-                picam2.stop()
+
                 if frame == None: 
                     return PrecheckError(
                         'Camera', 
                         'Picam2 is not responding.', 
                         time.time())
+                
+                capture_control.camera = 'Picamera'
+
+                # capture_controller.capture_profiles = capture_profiles
 
             except Exception as e: 
                 return PrecheckError(
@@ -170,6 +185,8 @@ class SelfCheckPrelaunch:
             
             ## TODO: Camera index, capture profiles to capture controller. default res and dimentions.
             
+
+
             return None
 
     

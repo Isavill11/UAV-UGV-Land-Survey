@@ -1,9 +1,9 @@
 ## MAIN LOOP DECISION MAKING FOR RASPI AGENT 
 import logging
 from enum import Enum, auto
-from verify_config import SelfCheckPrelaunch
-from system_builder import SystemBuilder
-from health import SystemHealth, PiHealth, LinkHealth
+from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
+from Raspberry_Pi_Agent.Mission_Controller.system_builder import SystemBuilder
+from Raspberry_Pi_Agent.Mission_Controller.health import SystemHealth, PiHealth, LinkHealth
 import time
 
 logging.basicConfig(
