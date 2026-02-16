@@ -13,19 +13,6 @@ except ImportError:
     Picamera2 = None
 from dataclasses import dataclass
 from pathlib import Path
-from .Mission_Controller.health import DroneHealth, PiHealth, LinkHealth
-from .Mission_Controller.mission_controller import MissionController
-from .Mission_Controller.capture_controller import CaptureController
-
-
-
-
-capture_control = CaptureController()
-mission_control = MissionController()
-drone_health = DroneHealth()
-raspi_health = PiHealth()
-
-
 
 REQUIRED_KEYS = {
     "platform": {
@@ -83,7 +70,6 @@ class SelfCheckPrelaunch:
         schema_errors = self._check_required_keys() ### Done
         if schema_errors: 
             return schema_errors
-        
 
         for check in [
         self._check_camera, ### Done
@@ -159,9 +145,6 @@ class SelfCheckPrelaunch:
                         'Picam2 is not responding.', 
                         time.time())
                 
-                capture_control.camera = 'Picamera'
-
-                # capture_controller.capture_profiles = capture_profiles
 
             except Exception as e: 
                 return PrecheckError(
@@ -183,7 +166,6 @@ class SelfCheckPrelaunch:
             cam.release()
             print('Windows webcam checked instead of Picam.')
             
-            ## TODO: Camera index, capture profiles to capture controller. default res and dimentions.
             
 
 
@@ -240,7 +222,6 @@ class SelfCheckPrelaunch:
                 severity="WARNING",
             )
             
-        ## TODO: Put storage paths in capture controller and mission planner. 
         
         return None
 
@@ -278,7 +259,6 @@ class SelfCheckPrelaunch:
         finally:
             master.close()
 
-        ### TODO: put network endpoints in DroneHealth in health.py to recieve and send mavlink packages.
         return None
     
     def _check_thermal(self):
@@ -342,7 +322,6 @@ class SelfCheckPrelaunch:
                 'ERROR'
             )
             
-        ### TODO: read interval goes into health PiHealth for temp. and thresholds
         
     
     def _check_power(self):
@@ -399,7 +378,6 @@ class SelfCheckPrelaunch:
             low_thresh = battery_cfg.get('low_battery', 20)
             crit_thresh = battery_cfg.get('critical_battery', 10)
             
-            ### TODO: battery config, low thresh, and crit thresh go into health controller.
             if battery_pct is None or battery_pct < 0:
                 return PrecheckError(
                     'Power',

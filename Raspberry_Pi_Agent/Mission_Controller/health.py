@@ -26,6 +26,10 @@ class LinkState(Enum):
     DEGRADED = auto()
     CRITICAL = auto()
 
+class ThermalState(Enum): 
+    GOOD = auto()
+    WARM = auto()
+    HOT = auto()
 
 @dataclass
 class HealthIssue:
@@ -38,11 +42,14 @@ class HealthIssue:
 
 @dataclass
 class DroneHealth:
+    
     battery_remaining: int | None = None
     battery_voltage: float | None = None
     armed: bool = False
     flight_mode: str | None = None
     last_update: float = field(default_factory=time.time)
+    gps_lock: bool = False
+    altitude: float | None = None
 
     def battery_state(self, cfg) -> BatteryState:
         if self.battery_remaining is None:
@@ -87,7 +94,7 @@ class DroneHealth:
 @dataclass
 class PiHealth:
     cpu_temp: float | None = None
-    storage_amt: bool = True
+    storage_remaining_mb: float | None = None
     last_update: float = field(default_factory=time.time)
 
     def update(self): 
@@ -154,6 +161,9 @@ class LinkHealth:
     rxerrors: int | None = None
     fixed: int | None = None
     last_update: float = field(default_factory=time.time)
+
+    packet_loss_percent: float | None = None
+    connected: bool = False
 
     def link_state(self, cfg) -> LinkState:
         if self._is_stale(): 

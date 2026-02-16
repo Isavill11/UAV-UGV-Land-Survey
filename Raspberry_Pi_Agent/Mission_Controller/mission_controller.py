@@ -1,7 +1,7 @@
 from enum import Enum, auto
 import time
 
-from Raspberry_Pi_Agent.Mission_Controller.health import (
+from .health import (
     SystemHealth,
     SystemState,
     BatteryState,
@@ -50,77 +50,95 @@ class MissionState(Enum):
 
 
 class MissionController:
-    def __init__(self, system_health, cfg, capture):
+    def __init__(self, config, system_health, capture_controller):
+        self.config = config
+
         self.state = MissionState.INIT
         self.health = system_health
-        self.cfg = cfg
-        self.capture = capture
+        self.capture_controller = capture_controller
+
+        self.ready = False
+        self.running = False
+        self.start_requested = False
+
+        self.platform_name = config["platform"]["name"]
+        self.platform_id = config["platform"]["id"]
+
         self.last_system_state = None
         self.current_system_state = None
 
-    def update(self):
+        self.state_start_time = time.time()
+        self.mission_start_time = None
+        self.loop_interval = 0.1   # main loop rate
+
+        def evaluate_system_state(self):
+            pass
+
+
+
+    # def update(self):
         
         
-        if self.state == MissionState.INIT:
-            if self.health.is_safe(self.cfg):
-                self._transition(MissionState.PREFLIGHT)
+    #     if self.state == MissionState.INIT:
+    #         if self.health.is_safe(self.cfg):
+    #             self._transition(MissionState.PREFLIGHT)
 
-        elif self.state == MissionState.PREFLIGHT:
-            if self.health.drone.armed:
-                self._transition(MissionState.READY)
+    #     elif self.state == MissionState.PREFLIGHT:
+    #         if self.health.drone.armed:
+    #             self._transition(MissionState.READY)
 
-        elif self.state == MissionState.READY:
-            if self.health.drone.flight_mode == "AUTO":
-                self._transition(MissionState.CAPTURING)
+    #     elif self.state == MissionState.READY:
+    #         if self.health.drone.flight_mode == "AUTO":
+    #             self._transition(MissionState.CAPTURING)
 
-        elif self.state == MissionState.CAPTURING:
-            if self.health.radio.evaluate(self.cfg["link_thresholds"]):
-                self._transition(MissionState.DEGRADED)
-            elif not self.health.is_safe(self.cfg):
-                self._transition(MissionState.FAILSAFE)
+    #     elif self.state == MissionState.CAPTURING:
+    #         if self.health.radio.evaluate(self.cfg["link_thresholds"]):
+    #             self._transition(MissionState.DEGRADED)
+    #         elif not self.health.is_safe(self.cfg):
+    #             self._transition(MissionState.FAILSAFE)
                 
-            if self.health.drone.battery_state(self.cfg) == BatteryState.LOW:
-                self._transition(MissionState.DEGRADED)
+    #         if self.health.drone.battery_state(self.cfg) == BatteryState.LOW:
+    #             self._transition(MissionState.DEGRADED)
 
-            if self.health.drone.is_critical(self.cfg):
-                    self._transition(MissionState.FAILSAFE)
+    #         if self.health.drone.is_critical(self.cfg):
+    #                 self._transition(MissionState.FAILSAFE)
 
-        elif self.state == MissionState.DEGRADED:
-            if self.health.radio.is_bad(self.cfg["link_thresholds"]):
-                self._transition(MissionState.FAILSAFE)
-            elif not self.health.radio.is_degraded(self.cfg["link_thresholds"]):
-                self._transition(MissionState.CAPTURING)
+    #     elif self.state == MissionState.DEGRADED:
+    #         if self.health.radio.is_bad(self.cfg["link_thresholds"]):
+    #             self._transition(MissionState.FAILSAFE)
+    #         elif not self.health.radio.is_degraded(self.cfg["link_thresholds"]):
+    #             self._transition(MissionState.CAPTURING)
 
-        elif self.state == MissionState.FAILSAFE:
-            self._transition(MissionState.SHUTDOWN)
-
-
-    def _transition(self, new_state):
-        self._on_exit(self.state)
-        self.state = new_state
-        self._on_enter(new_state)
+    #     elif self.state == MissionState.FAILSAFE:
+    #         self._transition(MissionState.SHUTDOWN)
 
 
-    def _on_enter(self, state):
-        if state == MissionState.CAPTURING:
-            self.capture.start()
-            self.capture.apply_profile("CAPTURING")
+    # def _transition(self, new_state):
+    #     self._on_exit(self.state)
+    #     self.state = new_state
+    #     self._on_enter(new_state)
 
 
-
-        elif state == MissionState.DEGRADED:
-            self.capture.start()
-            self.capture.apply_profile("DEGRADED")
+    # def _on_enter(self, state):
+    #     if state == MissionState.CAPTURING:
+    #         self.capture.start()
+    #         self.capture.apply_profile("CAPTURING")
 
 
 
-        elif state in (MissionState.FAILSAFE, MissionState.SHUTDOWN):
-            self.capture.stop()
+    #     elif state == MissionState.DEGRADED:
+    #         self.capture.start()
+    #         self.capture.apply_profile("DEGRADED")
 
 
 
-    def _on_exit(self, state):
-        pass
+    #     elif state in (MissionState.FAILSAFE, MissionState.SHUTDOWN):
+    #         self.capture.stop()
+
+
+
+    # def _on_exit(self, state):
+    #     pass
 
 
 

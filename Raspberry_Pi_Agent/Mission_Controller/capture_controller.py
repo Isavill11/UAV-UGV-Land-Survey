@@ -4,7 +4,6 @@ import time
 import os
 from datetime import datetime
 from enum import Enum
-from Raspberry_Pi_Agent.notmain import MissionController
 
 class CaptureState(Enum):
     OFF = 0
@@ -14,18 +13,20 @@ class CaptureState(Enum):
 ### TODO: add new args to init from config file, such as resolution, file type, capture rate, camera type
 
 class CaptureController:
-    def __init__(self):
-        self.camera_index = None
-        self.camera = None
+    def __init__(self, config):
+        camera_cfg = config["camera"]
+
+        self.camera_index = camera_cfg["id"]
+        self.capture_profiles = camera_cfg["capture_profiles"]
+        self.dimensions = camera_cfg["dimensions"]
+
         self.state = CaptureState.OFF
-        self.last_capture = 0.0
-
-        self.capture_profiles = dict
         self.active_profile = None
-
         self.interval = 0.0
         self.jpeg_quality = 90
         self.save_dir = None
+        self.last_capture = 0.0
+
 
     # lifecycle. Right now its only using cv2 to capture. we need to add py2cam or whatever for linux.
     def start(self):
@@ -42,12 +43,12 @@ class CaptureController:
         self.state = CaptureState.OFF
 
     # state-based config 
-    def apply_profile(self, state_name: str):
-        profile = self.capture_profiles[state_name]
-        # self.interval = profile["interval"]
-        # self.jpeg_quality = profile["jpeg_quality"]
-        # self.save_dir = profile["save_dir"]
-        os.makedirs(self.save_dir, exist_ok=True)
+    def apply_profile(self, profile_name: str):
+        profile = self.capture_profiles[profile_name]
+        self.interval = profile["interval"]
+        self.jpeg_quality = profile["jpeg_quality"]
+        self.save_dir = profile["save_dir"]
+        self.active_profile = profile_name
 
     def update(self):
         if self.state == CaptureState.OFF:

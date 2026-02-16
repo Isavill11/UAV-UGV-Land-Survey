@@ -1,69 +1,36 @@
 ## MAIN LOOP DECISION MAKING FOR RASPI AGENT 
 import logging
 from enum import Enum, auto
+
 from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
-from Raspberry_Pi_Agent.Mission_Controller.system_builder import SystemBuilder
-from Raspberry_Pi_Agent.Mission_Controller.health import SystemHealth, PiHealth, LinkHealth
-import time
-
-logging.basicConfig(
-    level=logging.INFO,  # or DEBUG
-    format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
+from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionController
+from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController
+from Raspberry_Pi_Agent.Mission_Controller.health import (
+    DroneHealth, 
+    LinkHealth, 
+    PiHealth, 
+    SystemHealth
 )
-logger = logging.getLogger(__name__)
 
-
-
-##### upon each instance ALWAYS self check
-checker = SelfCheckPrelaunch('/Raspberry_Pi_Agent/config.yaml')
-
-issues = checker.run()
-
-if checker.ready: 
-    cfg = checker.config
-else: 
-    logger.error("❌ Preflight checks failed")
-
-    for issue in issues:
-        logger.error(
-            "[%s] %s",
-            issue.subsystem,
-            issue.message
-        )
-    raise SystemExit(1)
-
-
-############# self check complete, continue!!!
-
-
-mission, capture = SystemBuilder.build()
-system_health = SystemHealth()
-mission_running = True
-
-
-while mission_running:
+def main():
     
-### TODO: Check if the heartbeat is receiving things, only then do we update everything else. 
-### TODO: We need to keep track of time to determine when to start capturing images. 
+    check = SelfCheckPrelaunch('C:\Users\isav3\VSCode Projects\UAV-UGV-Land-Survey\Raspberry_Pi_Agent\config.yaml')
+    check.run()
+    config = check.config
 
-    system_health.pi.update()
-    capture.update()
-    mission.update()
-    time.sleep(0.05)
+    system_health = SystemHealth(
+        drone=DroneHealth(),
+        pi=PiHealth(),
+        radio=LinkHealth()
+    )
 
+    capture_controller = CaptureController(config)
 
+    mission = MissionController(
+        config,
+        system_health,
+        capture_controller
+    )
 
-    #update health inputs
-    system_health.drone.battery_remaining = fc.get_battery_percent()
-    drone_health.last_update = time.time()
-
-    # evaluate
-    bat_state = drone_health.battery_state(cfg)
-
-    if bat_state == BatteryState.CRITICAL:
-        self.abort_mission()
-
-    elif bat_state == BatteryState.LOW:
-        self.enter_degraded_mode()
-
-    time.sleep(0.5)
+    mission.preflight_check()
+    mission.wait_for_start()

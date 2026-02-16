@@ -4,10 +4,15 @@ platform:
   id: ""
   location: ""  
   home : "" 
+  startup_delay_sec: 3
+  loop_rate_hz: 10
+
 
 camera:
   id: ""
   type: "" ## PiCam | Webcam | None
+  enable_on_start: false
+
   dimensions:
     width: 640
     height: 480
@@ -46,18 +51,19 @@ preprocessing:
       enabled: false
 
 storage:
-  local_path: ""
-  log_path: "" 
-  min_storage_mb_warn: 2000
-  min_storage_mb_fatal: 500
-  processed_folder: ""
-  tx_queue_folder: ""
-  max_raw_storage_mb: 0
-  max_processed_storage_mb: 0
-  auto_cleanup:
-    enabled: false
-    threshold_mb: 0
-    cleanup_amount_mb: 0
+enforce_storage_limits: true
+local_path: ""
+log_path: "" 
+min_storage_mb_warn: 2000
+min_storage_mb_fatal: 500
+processed_folder: ""
+tx_queue_folder: ""
+max_raw_storage_mb: 0
+max_processed_storage_mb: 0
+auto_cleanup:
+  enabled: false
+  threshold_mb: 0
+  cleanup_amount_mb: 0
 
 
 batching:
@@ -75,6 +81,8 @@ communication:
     rssi_critical: 85
     link_check_interval_sec: 0
   max_packet_loss_percent: 0.0
+  heartbeat_interval_sec: 1
+
 
 thermal_management:
   read_interval_sec: 10
