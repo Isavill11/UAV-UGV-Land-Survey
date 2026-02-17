@@ -8,9 +8,22 @@ platform:
   loop_rate_hz: 10
 
 
+# MAVLink Flight Controller Configuration
+mavlink:
+  # Connection string for flight controller
+  # For serial: "/dev/ttyS0" (Linux) or "COM3" (Windows)
+  # For UDP: "udp:127.0.0.1:14550"
+  # For TCP: "tcp:127.0.0.1:5760"
+  connection_string: "/dev/ttyS0"
+  baud: 115200
+  
+  # Timeout for MAVLink heartbeat (seconds)
+  mavlink_timeout: 2.0
+
+
 camera:
-  id: ""
-  type: "" ## PiCam | Webcam | None
+  id: 0  # Camera device index (0 for first camera)
+  type: "Webcam" ## PiCam | Webcam | None
   enable_on_start: false
 
   dimensions:
@@ -18,18 +31,17 @@ camera:
     height: 480
   capture_profiles:
     CAPTURING:
-      interval: 1.0
-      jpeg_quality: 90
-      save_dir: captured_images/full
+      interval: 1.0          # Capture every 1 second
+      jpeg_quality: 90       # High quality for good data
+      save_dir: mission_data/images
     DEGRADED:
-      interval: 5.0
-      jpeg_quality: 50
-      save_dir: captured_images/degraded
+      interval: 5.0          # Reduced rate for degraded conditions
+      jpeg_quality: 50       # Lower quality to save storage
+      save_dir: mission_data/images
     CRITICAL:
-      interval: 0
+      interval: 0            # No capture in critical state
       jpeg_quality: 0 
       save_dir: None
-### etc etc etc
 
 
 preprocessing:
@@ -50,70 +62,92 @@ preprocessing:
     roi:
       enabled: false
 
-storage:
-enforce_storage_limits: true
-local_path: ""
-log_path: "" 
-min_storage_mb_warn: 2000
-min_storage_mb_fatal: 500
-processed_folder: ""
-tx_queue_folder: ""
-max_raw_storage_mb: 0
-max_processed_storage_mb: 0
-auto_cleanup:
-  enabled: false
-  threshold_mb: 0
-  cleanup_amount_mb: 0
 
+storage:
+  enforce_storage_limits: true
+  local_path: "mission_data"                  # Base directory for all mission data
+  log_path: "mission_data/logs" 
+  min_storage_mb_warn: 500                     # Warn if available storage below this
+  min_storage_mb_fatal: 100                    # Critical if below this
+  max_raw_storage_mb: 2000                     # Max storage for images before cleanup
+  max_processed_storage_mb: 500                # Max for processed data
+  auto_cleanup:
+    enabled: true                              # Enable automatic cleanup of old images
+    threshold_mb: 1500                         # Cleanup when exceeding this
+    cleanup_amount_mb: 500                     # Amount to delete per cleanup
+
+# Image storage and transmission configuration
+image_storage:
+  base_path: "mission_data"                   # Base directory for image management
+  images_dir: "mission_data/images"           # Captured images
+  metadata_dir: "mission_data/metadata"       # Image metadata JSON files
+  tx_queue_dir: "mission_data/tx_queue"       # Images queued for transmission
+  sent_dir: "mission_data/sent"               # Successfully sent images (archive)
+  max_storage_mb: 2000                        # Total storage limit for images
+  min_storage_mb_warn: 500                    # Warn if less than this available
+  min_storage_mb_critical: 100                # Critical alert if less than this
 
 batching:
-  batch_size: 0
-  time_threshold_sec: 0
+  batch_size: 10                              # Images per batch on good link quality
+  time_threshold_sec: 30                      # Max time before forcing transmission
+  transmission_interval_sec: 5                # Check for pending images every N seconds
 
 communication:
-  protocol: "udp"   # udp | tcp | mavlink | custom
-  ground_station_ip: "0.0.0.0"
-  ground_station_port: 14550
-  uav_id: ""
+  protocol: "udp"                            # udp | tcp | mavlink | custom
+  ground_station_ip: "192.168.1.100"         # Ground station IP (UPDATE FOR YOUR NETWORK)
+  ground_station_port: 9999                   # Ground station receiving port (UPDATE FOR YOUR NETWORK)
+  uav_id: "UAV-001"                          # This UAV identifier
   ugv_id: ""
+  
+  # RSSI-based link quality thresholds (dBm values)
+  # Note: More negative values = worse signal. -50dBm = excellent, -100dBm = critical
+  rssi_thresholds:
+    excellent: -50          # Full batch transmission
+    good: -70               # Full batch transmission
+    degraded: -85           # Half batch transmission
+    critical: -100          # No transmission (wait for link recovery)
+  
   link_thresholds:
-    rssi_degraded: 70
-    rssi_critical: 85
-    link_check_interval_sec: 0
-  max_packet_loss_percent: 0.0
+    rssi_degraded: 70       # Signal strength threshold for degraded state
+    rssi_critical: 85       # Signal strength threshold for critical state
+    link_check_interval_sec: 1
+  max_packet_loss_percent: 10.0
   heartbeat_interval_sec: 1
+
+
+# Raspberry Pi Health Thresholds
+pi:
+  temp_warn: 70            # Warning threshold (Celsius)
+  temp_critical: 80        # Critical threshold (Celsius)
+  cpu_warn_percent: 80     # CPU load warning %
+  cpu_critical_percent: 95 # CPU load critical %
+
+
+# Battery Status Thresholds
+battery_status: 
+  critical_battery: 25     # Stop mission below this %
+  low_battery: 40          # Reduce capture rate below this %
+  voltage_warn: 10.5       # Voltage warning threshold (V)
+  voltage_critical: 9.5    # Voltage critical threshold (V)
 
 
 thermal_management:
   read_interval_sec: 10
   thresholds_c:
-    cool: 0
-    warm: 0
-    hot: 0
-    critical: 0
+    cool: 50
+    warm: 65
+    hot: 75
+    critical: 85
   policies:
     cool:
-      capture_rate_hz: 0
+      capture_rate_hz: 10
       tx_enabled: true
     warm:
-      capture_rate_hz: 0
+      capture_rate_hz: 5
       tx_enabled: true
     hot:
-      capture_rate_hz: 0
+      capture_rate_hz: 2
       tx_enabled: false
     critical:
       capture_rate_hz: 0
       tx_enabled: false
-
-battery_status: 
-  critical_battery: 25
-  low_battery: 40
-
-
-coordination:
-  role_priority: []
-  relay_enabled: false
-  upstream_vehicle_id: ""
-  downstream_vehicle_id: ""
-
-
