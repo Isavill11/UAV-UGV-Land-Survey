@@ -35,24 +35,75 @@
 
 ## Key Components
 
-### 1. **MAVLinkHandler** (`mavlink_handler.py`)
+## 1. **MAVLinkHandler** (`mavlink_handler.py`)
 Manages all communication with the flight controller.
 
-**Key Methods:**
-- `connect()` - Connect to flight controller
-- `start_listening()` - Start receiving messages in background thread
-- `register_handler(message_type, callback)` - Register message handlers
-- `arm_disarm(arm)` - Send arm/disarm commands
-- `set_mode(mode_name)` - Change flight mode
-- `request_message_interval(message_id, interval_us)` - Request message streams
+### Message Handler Mapping
 
-**Common Message Types:**
-- `HEARTBEAT` - Drone is alive (sent at ~1Hz)
-- `SYS_STATUS` - Battery, CPU load, errors
-- `BATTERY_STATUS` - Detailed battery info
-- `GPS_RAW_INT` - GPS position and altitude
-- `LOCAL_POSITION_NED` - Local position relative to home
-- `ATTITUDE` - Roll, pitch, yaw angles
+| Message Type | Handler Method | Updates | Frequency |
+|---|---|---|---|
+| HEARTBEAT | `_handle_heartbeat()` | armed, system_status | 1 Hz |
+| SYS_STATUS | `_handle_sys_status()` | battery%, cpu_load | 1 Hz |
+| BATTERY_STATUS | `_handle_battery_status()` | voltage, capacity | 1 Hz |
+| GPS_RAW_INT | `_handle_gps_raw()` | gps_lock, altitude | 1 Hz |
+| LOCAL_POSITION_NED | `_handle_local_position()` | altitude | 2 Hz |
+| ATTITUDE | `_handle_attitude()` | roll, pitch, yaw | 1 Hz |
+
+
+## Message Parameter meanings:
+
+### These features are the battery and overall system sensor health
+SYS_STATUS: 
+
+    battery_remaining    ->     > 40% = normal
+    voltage_battery    ->      20-40% = reduce camera capture rate
+    current_battery    ->      < 15% or when the state of the drone is critical = stop the capture rate completely and flush the buffers.
+    onboard_control_sensors_health
+    onboard_control_sensors_enabled
+    temperature (cdeg)
+
+
+### These features are the link quality
+RADIO_STATUS: 
+    rssi
+    - Signal strength of local radio
+    - Use to decide image transmit rate
+
+    remrssi
+    - Remote (GCS) signal strength
+    - Confirms downlink health
+
+    rxerrors
+    - Packet corruption indicator
+    - Rising trend = back off bandwidth
+
+    fixed
+    - How many errors were corrected
+    - High value = link struggling but alive
+
+### note to self :
+    Good link:
+    rssi > -70
+    rxerrors stable
+
+    Degraded:
+    rssi -70 to -85
+    rxerrors rising
+
+    Bad:
+    rssi < -85
+    rxerrors rapidly increasing
+
+
+### These features are the flight state
+HEARTBEAT:
+
+    base_mode    ->     armed vs disarmed vs rtl vs land, lets you know what mode the drone is in. stop capturing images when rtl or landing. 
+    custom_mode    ->   auto mission, manual mission. start full image capture on auto missions
+    system_status    ->     LOITER, HOVER, etc, reduce capture rate. 
+
+---
+
 
 ### 2. **Health System** (`Mission_Controller/health.py`)
 Tracks health of drone, Raspberry Pi, and radio link.
@@ -72,139 +123,8 @@ drone_health.update_from_gps_raw(msg)          # Gets altitude
 - `ThermalState`: GOOD, WARM, HOT
 - `SystemState`: OK, DEGRADED, CRITICAL
 
-### 3. **Mission Controller** (`Mission_Controller/mission_controller.py`)
-State machine that manages mission execution.
 
-**Mission States:**
-```
-INIT → PREFLIGHT → READY → CAPTURING ↔ DEGRADED → SHUTDOWN
-                              ↓
-                           FAILSAFE
-```
 
-**State Transitions Based On:**
-- Drone armed/disarmed
-- Battery level
-- System health (temperature, storage)
-- Link quality
-- Flight mode
-
-### 4. **Capture Controller** (`Mission_Controller/capture_controller.py`)
-Manages camera image capture with adaptive profiles.
-
-**Capture Profiles:**
-- `CAPTURING` - Normal operation (1 image/sec)
-- `DEGRADED` - Reduced rate (1 image/5 sec)
-- `CRITICAL` - No capture (saves resources)
-
-## Setup Instructions
-
-### 1. Install Dependencies
-
-```bash
-pip install pymavlink pyyaml opencv-python
-```
-
-### 2. Configure Connection
-
-Edit `config.yaml` in the `mavlink` section:
-
-```yaml
-mavlink:
-  # For Raspberry Pi serial connection (typical setup)
-  connection_string: "/dev/ttyS0"    # Serial port
-  baud: 115200                       # Standard ArduPilot baud rate
-  mavlink_timeout: 2.0               # Timeout in seconds
-```
-
-**Common Connection Strings:**
-- **Serial on Linux:** `/dev/ttyS0`, `/dev/ttyUSB0`, `/dev/ttyAMA0`
-- **Serial on Windows:** `COM3`, `COM4`
-- **UDP (for sitl/simulation):** `udp:127.0.0.1:14550`
-- **TCP:** `tcp:192.168.1.100:5760`
-
-### 3. Configure Health Thresholds
-
-Edit `config.yaml` for your specific drone:
-
-```yaml
-battery_status:
-  critical_battery: 25    # Stop mission at 25%
-  low_battery: 40         # Reduce rate at 40%
-  
-pi:
-  temp_warn: 70           # Warn at 70°C
-  temp_critical: 80       # Failsafe at 80°C
-
-communication:
-  link_thresholds:
-    rssi_degraded: 70     # dBm threshold for degraded
-    rssi_critical: 85     # dBm threshold for critical
-```
-
-## Running an Autonomous Mission
-
-### Step 1: Prepare Hardware
-1. Connect Raspberry Pi serial port to flight controller (TELEM2 port recommended)
-2. Connect Pi to power
-3. Upload mission to flight controller via Mission Planner
-4. Ensure GPS lock before starting
-
-### Step 2: Run the Mission
-
-```python
-# In Python script or command line:
-from Raspberry_Pi_Agent.notmain import main
-
-if __name__ == "__main__":
-    main()
-```
-
-### Step 3: Mission Sequence
-1. **Preflight Checks** - Verify system health, camera, storage
-2. **Waiting for Start** - Drone must be:
-   - Armed
-   - In AUTO mode
-   - Mission uploaded to flight controller
-3. **Mission Running** - Autonomous capture based on drone state:
-   - **Capturing**: Full resolution, 1 fps
-   - **Degraded**: Lower quality, reduced rate
-   - **Failsafe**: Stop capture, await recovery
-4. **Mission Complete** - Drone disarmed → graceful shutdown
-
-## Message Handlers Reference
-
-### How Message Handlers Work
-
-When the MAVLink thread receives a message, it:
-1. Calls all registered callbacks for that message type
-2. Callbacks receive the message object directly
-3. Update relevant health or controller state
-
-### Example: Custom Handler
-
-```python
-def my_custom_handler(msg):
-    """Called when HEARTBEAT received"""
-    print(f"Armed: {bool(msg.base_mode & 128)}")
-    print(f"Status: {msg.system_status}")
-
-# Register it
-mavlink.register_handler("HEARTBEAT", my_custom_handler)
-```
-
-### Built-in Message Handlers
-
-The `AutonomousMission` class registers these automatically:
-
-| Message | Handler | Updates |
-|---------|---------|---------|
-| HEARTBEAT | `_handle_heartbeat()` | Armed state, system status |
-| SYS_STATUS | `_handle_sys_status()` | Battery %, CPU load |
-| BATTERY_STATUS | `_handle_battery_status()` | Voltage, capacity |
-| GPS_RAW_INT | `_handle_gps_raw()` | GPS fix, altitude |
-| LOCAL_POSITION_NED | `_handle_local_position()` | Position, altitude |
-| ATTITUDE | `_handle_attitude()` | Roll, pitch, yaw |
 
 ## Troubleshooting
 
@@ -318,6 +238,7 @@ mavlink.request_message_interval(24, 100000)
 - Compress aggressively: `jpeg_quality: 60`
 - Enable auto cleanup in config
 
+
 ## Logging
 
 All components use Python logging. View logs:
@@ -329,9 +250,4 @@ logging.basicConfig(level=logging.INFO)   # Normal
 logging.basicConfig(level=logging.WARNING) # Errors only
 ```
 
-## Next Steps
 
-1. **Test Connection**: Run `mavlink.connect()` and verify heartbeat
-2. **Test Mission**: Run preflight and wait states without flying
-3. **Deploy**: Arm drone in AUTO mode and monitor logs
-4. **Iterate**: Adjust health thresholds based on real flight data

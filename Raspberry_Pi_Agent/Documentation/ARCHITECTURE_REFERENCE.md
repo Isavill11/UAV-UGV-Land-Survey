@@ -169,31 +169,31 @@ DETAILED STATE TRANSITIONS:
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STATE: FAILSAFE                                                              │
-├──────────────────────────────────────────────────────────────────────────────┤
+│ STATE: FAILSAFE                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
 │ WHAT IT DOES:                                                               │
-│ - EMERGENCY MODE: Stop all captures immediately                            │
-│ - Camera off                                                               │
-│ - Wait for human intervention                                             │
-│ - Log critical issues for debugging                                       │
-│                                                                            │
-│ CONDITIONS:                                                                │
-│ - Always transitions to → SHUTDOWN after brief wait                       │
-│   (automatic full stop, human must decide next action)                   │
+│ - EMERGENCY MODE: Stop all captures immediately                             │
+│ - Camera off                                                                │
+│ - Wait for human intervention                                               │
+│ - Log critical issues for debugging                                         │
+│                                                                             │
+│ CONDITIONS:                                                                 │
+│ - Always transitions to → SHUTDOWN after brief wait                         │
+│   (automatic full stop, human must decide next action)                      │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ STATE: SHUTDOWN                                                              │
-├──────────────────────────────────────────────────────────────────────────────┤
+│ STATE: SHUTDOWN                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
 │ WHAT IT DOES:                                                               │
-│ - Graceful termination of mission                                          │
-│ - Camera off, capture stopped                                             │
-│ - Close MAVLink connection                                                │
-│ - Write final logs                                                        │
-│ - Exit mission loop                                                       │
-│                                                                            │
-│ CONDITIONS:                                                                │
-│ - END STATE: Mission terminated, system idle                             │
+│ - Graceful termination of mission                                           │
+│ - Camera off, capture stopped                                               │
+│ - Close MAVLink connection                                                  │
+│ - Write final logs                                                          │
+│ - Exit mission loop                                                         │
+│                                                                             │
+│ CONDITIONS:                                                                 │
+│ - END STATE: Mission terminated, system idle                                │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 
