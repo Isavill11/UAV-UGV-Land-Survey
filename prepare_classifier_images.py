@@ -1,77 +1,73 @@
 import cv2
 import os
+import glob
 import random
+import numpy as np
+import shutil
 
-# --- CONFIGURATION ---
-IMAGE_DIR = '/Users/robert.esquivel/Documents/Programming_Stuff/PythonProject2/CowSpots.v2i.yolov8/train/images'
-LABEL_DIR = '/Users/robert.esquivel/Documents/Programming_Stuff/PythonProject2/CowSpots.v2i.yolov8/train/labels'
-OUTPUT_ANIMAL = 'images/animal'
-OUTPUT_NO_ANIMAL = 'images/no_animal'
+# --- CONFIG ---
+SOURCE_IMG_DIR = 'raw_images'
+SOURCE_LABEL_DIR = 'labels'
+OUTPUT_DIR = 'images'
+IMG_SIZE = (224, 224)
 
-TARGET_SIZE = (224, 224)
-PADDING_FACTOR = 0.3  # Adds 30% extra space for context
-PATCHES_PER_EMPTY_IMG = 50
-HARD_NEGATIVES_PER_IMG = 10
+def enhance_for_agriculture(img):
+    """Uses CLAHE to force the cow silhouette to stand out from the grass."""
+    lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+    l, a, b = cv2.split(lab)
+    # This 'stretches' the contrast locally
+    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8,8))
+    cl = clahe.apply(l)
+    enhanced = cv2.merge((cl,a,b))
+    return cv2.cvtColor(enhanced, cv2.COLOR_LAB2BGR)
 
-os.makedirs(OUTPUT_ANIMAL, exist_ok=True)
-os.makedirs(OUTPUT_NO_ANIMAL, exist_ok=True)
+def main():
+    if os.path.exists(OUTPUT_DIR): shutil.rmtree(OUTPUT_DIR)
+    os.makedirs(f"{OUTPUT_DIR}/no_animals", exist_ok=True)
+    os.makedirs(f"{OUTPUT_DIR}/yes_animals", exist_ok=True)
+    
+    img_paths = glob.glob(os.path.join(SOURCE_IMG_DIR, "*.jpg"))
+    print(f"Processing {len(img_paths)} source images...")
 
-
-def is_overlapping(new_box, existing_boxes):
-    nx1, ny1, nx2, ny2 = new_box
-    for (ex1, ey1, ex2, ey2) in existing_boxes:
-        if not (nx2 < ex1 or nx1 > ex2 or ny2 < ey1 or ny1 > ey2):
-            return True
-    return False
-
-
-def crop_cattle():
-    img_files = [f for f in os.listdir(IMAGE_DIR) if f.endswith(('.jpg', '.png'))]
-    print(f"🔍 Processing {len(img_files)} images with {PADDING_FACTOR * 100}% padding...")
-
-    for img_name in img_files:
-        img = cv2.imread(os.path.join(IMAGE_DIR, img_name))
-        if img is None: continue
+    for img_path in img_paths:
+        base = os.path.splitext(os.path.basename(img_path))[0]
+        label_path = os.path.join(SOURCE_LABEL_DIR, f"{base}.txt")
+        img = cv2.imread(img_path)
+        if img is None or not os.path.exists(label_path): continue
+        
+        # 1. Enhance the whole frame first
+        img = enhance_for_agriculture(img)
         h, w, _ = img.shape
 
-        label_path = os.path.join(LABEL_DIR, img_name.rsplit('.', 1)[0] + '.txt')
-        existing_boxes = []
+        # 2. Extract Animals
+        with open(label_path, 'r') as f:
+            for i, line in enumerate(f.readlines()):
+                parts = line.split()
+                if len(parts) < 5: continue
+                cx, cy, nw, nh = map(float, parts[1:5])
+                x1, y1 = int((cx - nw/2) * w), int((cy - nh/2) * h)
+                x2, y2 = int((cx + nw/2) * w), int((cy + nh/2) * h)
+                
+                # Context padding (40%) helps the model see the grass/cow boundary
+                pad = int(max(x2-x1, y2-y1) * 0.4)
+                crop = img[max(0, y1-pad):min(h, y2+pad), max(0, x1-pad):min(w, x2+pad)]
+                if crop.size > 0:
+                    cv2.imwrite(f"{OUTPUT_DIR}/yes_animals/{base}_{i}.jpg", cv2.resize(crop, IMG_SIZE))
 
-        if os.path.exists(label_path) and os.path.getsize(label_path) > 0:
-            with open(label_path, 'r') as f:
-                lines = f.readlines()
-                for i, line in enumerate(lines):
-                    parts = line.split()
-                    if len(parts) < 5: continue
+        # 3. Extract Background (Randomly but from the same image)
+        for j in range(3):
+            rx, ry = random.randint(0, w-300), random.randint(0, h-300)
+            bg_crop = img[ry:ry+300, rx:rx+300]
+            cv2.imwrite(f"{OUTPUT_DIR}/no_animals/{base}_bg_{j}.jpg", cv2.resize(bg_crop, IMG_SIZE))
 
-                    x_c, y_c, wb, hb = map(float, parts[1:5])
-
-                    # Apply Padding to help the model see the cow's silhouette
-                    wb_p, hb_p = wb * (1 + PADDING_FACTOR), hb * (1 + PADDING_FACTOR)
-
-                    x1, y1 = max(0, int((x_c - wb_p / 2) * w)), max(0, int((y_c - hb_p / 2) * h))
-                    x2, y2 = min(w, int((x_c + wb_p / 2) * w)), min(h, int((y_c + hb_p / 2) * h))
-                    existing_boxes.append((x1, y1, x2, y2))
-
-                    crop = img[y1:y2, x1:x2]
-                    if crop.size > 0:
-                        resized = cv2.resize(crop, TARGET_SIZE, interpolation=cv2.INTER_CUBIC)
-                        cv2.imwrite(f"{OUTPUT_ANIMAL}/{i}_{img_name}", resized)
-
-            for j in range(HARD_NEGATIVES_PER_IMG):
-                rx, ry = random.randint(0, w - TARGET_SIZE[0]), random.randint(0, h - TARGET_SIZE[1])
-                new_box = (rx, ry, rx + TARGET_SIZE[0], ry + TARGET_SIZE[1])
-                if not is_overlapping(new_box, existing_boxes):
-                    bg_crop = img[ry:ry + TARGET_SIZE[1], rx:rx + TARGET_SIZE[0]]
-                    cv2.imwrite(f"{OUTPUT_NO_ANIMAL}/hard_neg_{j}_{img_name}", bg_crop)
-        else:
-            for k in range(PATCHES_PER_EMPTY_IMG):
-                rx, ry = random.randint(0, w - TARGET_SIZE[0]), random.randint(0, h - TARGET_SIZE[1])
-                bg_crop = img[ry:ry + TARGET_SIZE[1], rx:rx + TARGET_SIZE[0]]
-                cv2.imwrite(f"{OUTPUT_NO_ANIMAL}/patch_{k}_{img_name}", bg_crop)
-
-    print("✅ Cropping complete.")
-
+    print("⚖️ Balancing folders...")
+    # Quick 1:1 balance check
+    yes_f = os.listdir(f"{OUTPUT_DIR}/yes_animals")
+    no_f = os.listdir(f"{OUTPUT_DIR}/no_animals")
+    target = min(len(yes_f), len(no_f))
+    for f in yes_f[target:]: os.remove(os.path.join(f"{OUTPUT_DIR}/yes_animals", f))
+    for f in no_f[target:]: os.remove(os.path.join(f"{OUTPUT_DIR}/no_animals", f))
+    print(f"✅ Dataset ready: {target} images per class.")
 
 if __name__ == "__main__":
-    crop_cattle()
+    main()
