@@ -1,7 +1,6 @@
 
 platform:
   name: "uav" # uav | ugv | ground_station
-  name: "uav" # uav | ugv | ground_station
   id: ""
   location: ""  
   home : "" 
@@ -11,10 +10,11 @@ platform:
 
 # MAVLink Flight Controller Configuration
 mavlink:
-  # For serial: "/dev/ttyS0" (Linux) or "COM3" (Windows)
-  connection_string: "udp:0.0.0.0:14550"
+  # For serial: "/dev/serial" (Linux) or "COM3" (Windows)
+  # connection_string: "udp:0.0.0.0:14550"
   # For TCP: "tcp:127.0.0.1:5760"
-  # connection_string: "/dev/ttyS0"
+  
+  connection_string: "/dev/serial0"
   baud: 115200
   
   # Timeout for MAVLink heartbeat (seconds)
@@ -93,8 +93,9 @@ batching:
   transmission_interval_sec: 5                # Check for pending images every N seconds
 
 communication:
+  enabled: false
   protocol: "udp"                            # udp | tcp | mavlink | custom
-  ground_station_ip: "192.168.1.100"         # Ground station IP (UPDATE FOR YOUR NETWORK)
+  ground_station_ip: "192.168.1.225"         # Ground station IP (UPDATE FOR YOUR NETWORK)
   ground_station_port: 9999                   # Ground station receiving port (UPDATE FOR YOUR NETWORK)
   uav_id: "UAV-001"                          # This UAV identifier
   ugv_id: ""

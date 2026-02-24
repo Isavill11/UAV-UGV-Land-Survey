@@ -1,7 +1,7 @@
 
 # Running a test mission: 
 *Prepare Configuration*
-Raspberry_Pi_Agent/config.yaml*
+Raspberry_Pi_Agent/config.yaml
 mavlink:
   connection_string: "udp:127.0.0.1:14550"  # For simulator
   # OR: "/dev/ttyS0" for real Raspberry Pi
@@ -15,7 +15,9 @@ camera:
 *Step 2: Run the Mission*
 From your workspace root:
 # Activate environment
+
 cd "<working_directory>UAV-UGV-Land-Survey"
+
 .\.venv\Scripts\Activate.ps1
 
 # Start the mission
