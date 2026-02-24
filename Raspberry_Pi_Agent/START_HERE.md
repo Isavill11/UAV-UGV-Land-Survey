@@ -1,310 +1,220 @@
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                           ║
-║            ✅ MAVLink AUTONOMOUS MISSION SYSTEM - COMPLETE ✅            ║
-║                                                                           ║
-║                     All Files Created and Ready to Use                    ║
-║                                                                           ║
-╚═══════════════════════════════════════════════════════════════════════════╝
+# 🚀 START HERE – UAV Raspberry Pi Agent
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 DOCUMENTATION: 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Welcome to the UAV Raspberry Pi Autonomous Mission System documentation.
 
-✅ DOCUMENTATION_INDEX.md
-   ├─ Navigation guide for all documentation
-   ├─ Recommended reading order
-   ├─ Quick reference for finding answers
-   └─ START HERE if unsure where to go
+This project implements:
 
-✅ README_MAVLINK.md ⭐ START HERE
-   ├─ What's been implemented
-   ├─ Quick start (3 steps)
-   ├─ Architecture highlights
-   ├─ Key features
-   └─ 5-10 minute read
+- MAVLink communication with ArduPilot
+- Health monitoring (battery, thermal, link, storage)
+- Mission state machine control
+- Adaptive image capture
+- Adaptive image storage and transmission
+- Ground station receiver with MD5 verification
 
-✅ IMPLEMENTATION_SUMMARY.md
-   ├─ Complete feature summary
-   ├─ File descriptions
-   ├─ Configuration reference
-   ├─ Testing phases overview
-   └─ Learning path
+If you are new to the system, follow this reading order:
 
-✅ MAVLINK_INTEGRATION_GUIDE.md
-   ├─ Setup instructions (step-by-step)
-   ├─ Configuration details
-   ├─ Message types reference
-   ├─ Troubleshooting guide
-   └─ Advanced usage examples
+---
 
-✅ ARCHITECTURE_REFERENCE.md
-   ├─ Detailed message flow diagrams
-   ├─ State machine transitions
-   ├─ Health evaluation logic
-   ├─ Thread architecture
-   └─ Data flow examples with timestamps
+# Documentation Overview
 
-✅ MISSION_EXAMPLES.py
-   ├─ Example 1: Simple (just run)
-   ├─ Example 2: Advanced (custom tweaks)
-   ├─ Example 3: Manual (step-by-step)
-   └─ Example 4: Just connect (listen)
+## 1: SYSTEM_OVERVIEW.md  (Understand the Architecture)
 
-✅ TESTING_CHECKLIST.md
-   ├─ 7 testing phases
-   ├─ Phase 1: Environment (15 min)
-   ├─ Phase 2: Hardware (20 min)
-   ├─ Phase 3: Software (20 min)
-   ├─ Phase 4: Dry run (30 min)
-   ├─ Phase 5: Stress (20 min)
-   ├─ Phase 6: First flight (30 min)
-   ├─ Phase 7: Production (ongoing)
-   ├─ Troubleshooting table
-   └─ Useful commands
+- Executive summary
+- Full system architecture diagram
+- Message flow diagrams
+- State machine diagrams
+- Thread architecture diagram
+- Health evaluation logic tables
+- File structure diagram
+- Performance characteristics
 
-✅ PROJECT_STRUCTURE.md
-   ├─ Complete file hierarchy
-   ├─ File descriptions
-   ├─ Data flow architecture
-   ├─ State machine visualization
-   └─ File dependencies
+Read this first to understand how everything connects.
 
-✅ IMPLEMENTATION_REPORT.md
-   ├─ Executive summary
-   ├─ Files delivered
-   ├─ Code quality metrics
-   ├─ Key features
-   └─ Success criteria (ALL MET)
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-💻 CORE IMPLEMENTATION FILES (6 FILES)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 2: CONFIGURATION_REFERENCE.md  (Understand Tuning Parameters)
 
-🆕 ✅ mavlink_handler.py (NEW - 400+ lines)
-   ├─ Complete MAVLink communication library
-   ├─ Connection management (serial, UDP, TCP)
-   ├─ Thread-based message handling
-   ├─ Message handler registration
-   ├─ Command sending (arm/disarm, mode change)
-   └─ Heartbeat monitoring
+- MAVLink connection settings
+- Battery thresholds
+- Thermal thresholds
+- RSSI thresholds
+- Capture profiles
+- Storage configuration
+- Transmission batching
+- Example configurations (conservative, long mission, poor link)
 
-✏️ ✅ notmain.py (UPDATED - 280 lines)
-   ├─ Main autonomous mission controller
-   ├─ AutonomousMission class
-   ├─ MAVLink handler setup
-   ├─ Message handler registration
-   ├─ Main mission loop
-   ├─ Graceful shutdown
-   └─ Signal handling
+---
 
-✏️ ✅ Mission_Controller/mission_controller.py (UPDATED - 220 lines)
-   ├─ Complete state machine implementation
-   ├─ States: INIT, PREFLIGHT, READY, CAPTURING, DEGRADED, FAILSAFE, SHUTDOWN
-   ├─ State transition logic
-   ├─ Health-based decision making
-   ├─ Capture controller integration
-   └─ Entry/exit handlers
+## 3: DEPLOYMENT_AND_TESTING.md  (Run the System Safely)
 
-✏️ ✅ Mission_Controller/health.py (UPDATED - 150 additions)
-   ├─ MAVLink message handlers:
-   │  ├─ update_from_heartbeat()
-   │  ├─ update_from_sys_status()
-   │  ├─ update_from_battery_status()
-   │  ├─ update_from_gps_raw()
-   │  └─ update_from_local_position()
-   ├─ is_healthy() method
-   └─ Health state evaluation
+- Environment setup checklist
+- Hardware wiring diagram
+- MAVLink connection tests
+- Camera tests
+- Dry run procedure
+- Stress testing
+- First flight checklist
+- Troubleshooting table
 
-✏️ ✅ Mission_Controller/capture_controller.py (UPDATED - 120 additions)
-   ├─ Fixed camera initialization
-   ├─ Robust error handling
-   ├─ Improved logging
-   ├─ Profile management (CAPTURING, DEGRADED, CRITICAL)
-   └─ Adaptive capture rates
+Follow this before flying.
 
-✏️ ✅ config.yaml (UPDATED - 150 additions)
-   ├─ MAVLink connection settings
-   ├─ Flight controller parameters
-   ├─ Camera profile configurations
-   ├─ Battery status thresholds
-   ├─ Pi health thresholds
-   └─ Radio link quality thresholds
+---
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📦 DEPENDENCIES
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+## 4: IMAGE_STORAGE_AND_TRANSMISSION.md  (Image Subsystem)
 
-✅ requirements_mavlink.txt
-   ├─ pymavlink >= 2.4.39 (MAVLink protocol)
-   ├─ pyyaml >= 6.0 (Configuration)
-   ├─ opencv-python >= 4.5.0 (Camera capture)
-   └─ Install with: pip install -r requirements_mavlink.txt
+- ImageManager architecture diagram
+- Directory structure diagrams
+- Transmission packet format
+- RSSI adaptive batching table
+- Ground station directory structure
+- API reference
+- Deployment checklist
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✨ WHAT YOU NOW HAVE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-✅ MAVLink Flight Controller Communication
-   └─ Connect to ArduPilot via serial/UDP/TCP
-   
-✅ Real-Time Health Monitoring
-   ├─ Battery voltage and percentage
-   ├─ Drone armed state
-   ├─ Flight temperature
-   ├─ Raspberry Pi temperature
-   ├─ Storage space
-   └─ Radio link quality
+# System Architecture Overview
 
-✅ Intelligent State Machine
-   ├─ Auto transitions based on health
-   ├─ 7 distinct states
-   ├─ Graceful failsafe handling
-   └─ Automatic recovery
+┌─────────────────────────────────────────────────────────┐
+│                Flight Controller (ArduPilot)            │
+│                 (Connected via Serial/UDP)              │
+└────────────────────────────┬────────────────────────────┘
+                             │
+                      MAVLink Messages
+                             │
+┌────────────────────────────▼─────────────┐
+│      MAVLinkHandler (mavlink_handler.py) │
+│      - Receives MAVLink messages         │
+│      - Routes to message handlers        │
+│      - Manages connection lifecycle      │
+└────────────────────┬─────────────────────┘
+                     │
+┌────────────────────┴──────────────────────┐
+│                                           │
+▼                                           ▼
+┌───────────────────────┐  ┌──────────────────────┐
+│ Health Tracking       │  │ Mission Controller   │
+│ - DroneHealth         │->│ - State Machine      │
+│ - PiHealth            │  │ - State Transitions  │
+│ - LinkHealth          │  │ - Capture Control    │
+│ - SystemHealth        │  └──────────────────────┘
+└───────────────────────┘            │
+                                     ▼
+                          ┌──────────────────────┐
+                          │ CaptureController    │
+                          │ - Camera management  │
+                          │ - Image capture      │
+                          └──────────────────────┘
+                            │
+                            ▼
+                 ┌──────────────────────┐
+                 │ ImageManager         │
+                 │ - StorageManager     │
+                 │ - ImageTransmitter   │
+                 └──────────────────────┘
+                     │
+                     ▼
+          ┌──────────────────────┐ 
+          │ Ground Station       │
+          │ Receiver             │
+          └──────────────────────┘
 
-✅ Adaptive Camera System
-   ├─ CAPTURING: Full quality (1 fps, 90% JPEG)
-   ├─ DEGRADED: Lower quality (0.2 fps, 50% JPEG)
-   ├─ CRITICAL: No capture (saves resources)
-   └─ Automatic profile switching
 
-✅ Thread-Safe Communication
-   ├─ Non-blocking message reception
-   ├─ Background listener thread
-   ├─ Safe message routing
-   └─ No main loop blocking
 
-✅ Configurable Everything
-   ├─ Battery thresholds
-   ├─ Temperature limits
-   ├─ Radio signal strength
-   ├─ Capture rates
-   ├─ Image quality
-   └─ Connection settings
+---
 
-✅ Comprehensive Documentation
-   ├─ 9 documentation files
-   ├─ 3,000+ lines of guides
-   ├─ Architecture diagrams
-   ├─ Code examples
-   └─ Troubleshooting guides
+# 🔄 Mission State Machine
 
-✅ Testing & Deployment
-   ├─ 7-phase testing checklist
-   ├─ Phase-by-phase procedures
-   ├─ Troubleshooting table
-   ├─ Success criteria
-   └─ ~4 hours to first flight
+INIT → PREFLIGHT → READY → CAPTURING ↔ DEGRADED → FAILSAFE → SHUTDOWN
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚀 QUICK START (5 MINUTES)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-1️⃣  Install Dependencies
-    $ pip install -r Raspberry_Pi_Agent/requirements_mavlink.txt
+### Detailed State Logic
+ 
+| State     | Description           | Exit Condition       |
+|-----------|-----------------------|----------------------|
+| INIT      | System initialization |  Config loaded       |
+| PREFLIGHT | Health checks running |  Drone armed         |
+| READY     | Waiting for AUTO mode |  AUTO detected       |
+| CAPTURING | Full rate capture     |  Degraded or critical|
+| DEGRADED  | Reduced rate capture  |  Recovery or critical|
+| FAILSAFE  | Emergency stop        |  Shutdown            |
+| SHUTDOWN  | Clean exit            |  End state           |
 
-2️⃣  Configure Connection
-    Edit: Raspberry_Pi_Agent/config.yaml
-    Set: mavlink.connection_string = "/dev/ttyS0"
+---
 
-3️⃣  Run Mission
-    $ python -c "from Raspberry_Pi_Agent.notmain import main; main()"
+# 📡 MAVLink Message Mapping
 
-✅ Done! System will connect and wait for autonomous flight.
+| Message | Handler | Updates | Frequency |
+|----------|----------|---------|-----------|
+| HEARTBEAT | `_handle_heartbeat()` | Armed state | 1 Hz |
+| SYS_STATUS | `_handle_sys_status()` | Battery %, CPU | 1 Hz |
+| BATTERY_STATUS | `_handle_battery_status()` | Voltage | 1 Hz |
+| GPS_RAW_INT | `_handle_gps_raw()` | Altitude | 1 Hz |
+| LOCAL_POSITION_NED | `_handle_local_position()` | Position | 2 Hz |
+| ATTITUDE | `_handle_attitude()` | Orientation | 1 Hz |
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 SYSTEM OVERVIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-Architecture:
-    Flight Controller
-           ↓
-    MAVLink Messages
-           ↓
-    MAVLinkHandler (background thread)
-           ↓
-    DroneHealth + SystemHealth
-           ↓
-    MissionController (state machine)
-           ↓
-    CaptureController (camera)
-           ↓
-    Captured Images
+# RSSI Transmission Table
 
-State Machine:
-    INIT → PREFLIGHT → READY → CAPTURING ↔ DEGRADED → FAILSAFE → SHUTDOWN
+| RSSI (dBm) | Signal Quality | Batch Size |
+|------------|----------------|------------|
+| > -50 | Excellent | Full batch |
+| -50 to -70 | Good | Full batch |
+| -70 to -85 | Degraded | Half batch |
+| -85 to -100 | Weak | Single |
+| < -100 | Critical | None |
 
-Health States:
-    OK → DEGRADED → CRITICAL → FAILSAFE
+---
 
-Message Types:
-    HEARTBEAT → SYS_STATUS → BATTERY_STATUS → GPS_RAW_INT → 
-    LOCAL_POSITION_NED → ATTITUDE
+# Image Storage Structure
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏱️  TIMELINE TO FIRST AUTONOMOUS FLIGHT
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+mission_data/
+├── images/
+├── metadata/
+├── tx_queue/
+└── sent/
 
-Total: ~4-5 hours
+received_images/
+├── verified/
+├── unverified/
+├── failed/
+└── metadata/
 
-1. Install & Configure                               20 min
-2. Test Connection & Hardware                        40 min
-3. Run Dry Run (grounded)                           30 min
-4. Run First Flight (in safe area)                   30 min
-5. Analyze & Optimize                               30 min
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📍 WHERE TO START
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+---
 
-Step 1: Read README_MAVLINK.md (5 min)
-   This gives you the overview and quick start
+# Testing Phases Overview
 
-Step 2: Follow TESTING_CHECKLIST.md Phase 1-2 (35 min)
-   This sets up your environment and hardware
+1. Environment Setup
+2. Hardware Setup
+3. MAVLink Test
+4. Camera Test
+5. Dry Run
+6. Stress Test
+7. First Flight
+8. Production Deployment
 
-Step 3: Read MAVLINK_INTEGRATION_GUIDE.md if questions (20 min)
-   Detailed setup and configuration information
+Full details in `DEPLOYMENT_AND_TESTING.md`.
 
-Step 4: Follow TESTING_CHECKLIST.md Phase 3-4 (50 min)
-   Dry run testing on the ground
+---
 
-Step 5: Review MISSION_EXAMPLES.py (15 min)
-   See different usage patterns
+# Quick Start:
 
-Step 6: Fly your first autonomous mission! 🚁
+1. Install dependencies:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📚 DOCUMENTATION REFERENCE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`pip install -r requirements_mavlink.txt `
 
-Need help finding something?
+2. Configure `config.yaml`.
 
-| Question                    | Answer                        |
-|-----------------------------|-------------------------------|
-| What's included?            | IMPLEMENTATION_SUMMARY.md     |
-| How do I setup?             | MAVLINK_INTEGRATION_GUIDE.md  |
-| Show me code examples       | MISSION_EXAMPLES.py           |
-| How do I test?              | TESTING_CHECKLIST.md          |
-| How does it work?           | ARCHITECTURE_REFERENCE.md     |
-| Where is file X?            | PROJECT_STRUCTURE.md          |
-| What if something's wrong?  | Troubleshooting in guides     |
-| Navigation help             | DOCUMENTATION_INDEX.md        |
+3. Run mission:
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔧 USEFUL COMMANDS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`python -m Raspberry_Pi_Agent.notmain`
 
-# Install dependencies
-pip install -r Raspberry_Pi_Agent/requirements_mavlink.txt
 
-# Check what's available
-ls Raspberry_Pi_Agent/
+4. Arm drone.
+5. Switch to AUTO.
+6. Monitor logs.
+7. Disarm to shutdown.
 
-# Run the mission
-python -c "from Raspberry_Pi_Agent.notmain import main; main()"
 
-# View configuration
-cat Raspberry_Pi_Agent/config.yaml
 
-# Read documentation
-cat Raspberry_Pi_Agent/README_MAVLINK.md
