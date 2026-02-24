@@ -26,6 +26,10 @@ class LinkState(Enum):
     DEGRADED = auto()
     CRITICAL = auto()
 
+class ThermalState(Enum): 
+    GOOD = auto()
+    WARM = auto()
+    HOT = auto()
 
 @dataclass
 class HealthIssue:
@@ -38,11 +42,19 @@ class HealthIssue:
 
 @dataclass
 class DroneHealth:
+    
     battery_remaining: int | None = None
     battery_voltage: float | None = None
     armed: bool = False
     flight_mode: str | None = None
     last_update: float = field(default_factory=time.time)
+    gps_lock: bool = False
+    altitude: float | None = None
+    
+    # Additional drone state from MAVLink
+    system_status: int | None = None
+    cpu_load: int | None = None
+    motor_count: int | None = None
 
     def battery_state(self, cfg) -> BatteryState:
         if self.battery_remaining is None:
@@ -57,6 +69,57 @@ class DroneHealth:
             return BatteryState.LOW
         else:
             return BatteryState.OK
+    
+    def update_from_heartbeat(self, msg):
+        """Update drone health from HEARTBEAT message"""
+        self.armed = bool(msg.base_mode & 128)  # Check armed bit
+        self.system_status = msg.system_status
+        self.last_update = time.time()
+    
+    def update_from_sys_status(self, msg):
+        """Update drone health from SYS_STATUS message"""
+        self.battery_remaining = msg.battery_remaining  # 0-100
+        self.cpu_load = msg.load  # CPU load in %
+        self.last_update = time.time()
+    
+    def update_from_battery_status(self, msg):
+        """Update drone health from BATTERY_STATUS message"""
+        if msg.voltages and len(msg.voltages) > 0:
+            self.battery_voltage = msg.voltages[0] / 1000.0  # Convert to volts
+        self.battery_remaining = msg.battery_remaining if msg.battery_remaining >= 0 else None
+        self.last_update = time.time()
+    
+    def update_from_gps_raw(self, msg):
+        """Update drone health from GPS_RAW_INT message"""
+        self.gps_lock = msg.fix_type >= 3  # 3+ is RTK fix or better
+        self.altitude = msg.alt / 1000.0  # Convert to meters
+        self.last_update = time.time()
+    
+    def update_from_local_position(self, msg):
+        """Update drone health from LOCAL_POSITION_NED message"""
+        # Negative z is altitude above origin
+        self.altitude = max(-msg.z, 0) if msg.z else 0
+        self.last_update = time.time()
+    
+    def is_healthy(self, cfg) -> bool:
+        """Check if drone is in a healthy state"""
+        if self._is_stale(cfg.get("mavlink_timeout", 2.0)):
+            return False
+        
+        battery_state = self.battery_state(cfg)
+        if battery_state == BatteryState.CRITICAL:
+            return False
+        
+        # Drone must be armed and in a valid mode for mission
+        if not self.armed:
+            return False
+        
+        return True
+    
+    def _is_stale(self, timeout: float = 2.0) -> bool:
+        """Check if health data is stale (no recent updates)"""
+        return (time.time() - self.last_update) > timeout
+    
     
     def evaluate(self, cfg) -> list[HealthIssue]:
         issues = []
@@ -87,7 +150,7 @@ class DroneHealth:
 @dataclass
 class PiHealth:
     cpu_temp: float | None = None
-    storage_amt: bool = True
+    storage_remaining_mb: float | None = None
     last_update: float = field(default_factory=time.time)
 
     def update(self): 
@@ -136,11 +199,11 @@ class PiHealth:
     def _is_stale(self, timeout=5.0):
         return (time.time() - self.last_update) > timeout
     
-    def _get_raspi_core_temp(self): 
+    def get_raspi_core_temp(self): 
         temp = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline() 
         return float(temp) / 1000.0 
     
-    def _check_disk(self): 
+    def check_disk(self): 
         st = os.statvfs("/") 
         free = st.f_bavail * st.f_frsize 
         return free > 100 * 1024 * 1024 
@@ -154,6 +217,9 @@ class LinkHealth:
     rxerrors: int | None = None
     fixed: int | None = None
     last_update: float = field(default_factory=time.time)
+
+    packet_loss_percent: float | None = None
+    connected: bool = False
 
     def link_state(self, cfg) -> LinkState:
         if self._is_stale(): 
@@ -169,7 +235,7 @@ class LinkHealth:
         issues = []
         now = time.time()
 
-        if self.is_stale():
+        if self._is_stale():
             issues.append(
                 HealthIssue(
                     source="LINK",
@@ -179,7 +245,7 @@ class LinkHealth:
                 ))
             return issues
 
-        if self.is_bad(cfg):
+        if self._is_bad(cfg):
             issues.append(
                 HealthIssue(
                     source="LINK",
@@ -187,7 +253,7 @@ class LinkHealth:
                     severity=Severity.CRITICAL,
                     timestamp=now
                 ))
-        elif self.is_degraded(cfg):
+        elif self._is_degraded(cfg):
             issues.append(
                 HealthIssue(
                     source="LINK",
@@ -202,14 +268,14 @@ class LinkHealth:
             return (time.time() - self.last_update) > timeout
 
     def _is_degraded(self, cfg) -> bool:
-        if self.is_stale():
+        if self._is_stale():
             return True
         if self.rssi is None:
             return True
         return self.rssi < cfg["rssi_degraded"]
 
     def _is_bad(self, cfg) -> bool:  #### if the link health is bad, this is a CRITICAL State.
-        if self.is_stale():
+        if self._is_stale():
             return True
         if self.rssi is None:
             return True
