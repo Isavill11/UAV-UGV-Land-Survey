@@ -1,1 +1,0 @@
-### checks the link to the ground station and then sends the batch files. 

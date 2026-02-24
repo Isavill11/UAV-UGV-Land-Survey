@@ -1,6 +1,7 @@
 
 platform:
   name: "uav" # uav | ugv | ground_station
+  name: "uav" # uav | ugv | ground_station
   id: ""
   location: ""  
   home : "" 
