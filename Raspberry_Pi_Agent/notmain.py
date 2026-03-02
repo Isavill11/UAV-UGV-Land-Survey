@@ -7,6 +7,7 @@ Manages MAVLink communication, health monitoring, and camera capture based on mi
 import logging
 import time
 import signal
+import platform
 import sys
 import os
 from enum import Enum, auto
@@ -23,7 +24,6 @@ from Raspberry_Pi_Agent.Mission_Controller.health import (
 )
 from Raspberry_Pi_Agent.image_manager import ImageManager
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -34,10 +34,11 @@ logger = logging.getLogger(__name__)
 class AutonomousMission:
     
     def __init__(self, config_path: str):
-       
+        
         check = SelfCheckPrelaunch(config_path)
         check.run()
         self.config = check.config
+        os = platform.system()
         
         self.system_health = SystemHealth(
             drone=DroneHealth(),
@@ -46,12 +47,12 @@ class AutonomousMission:
         )
         self.image_manager = ImageManager(self.config)
         
-        self.capture_controller = CaptureController(self.config, self.image_manager)
+        self.capture_controller = CaptureController(self.config, self.image_manager, os=os)
         self.mission_controller = MissionController(
             self.config,
             self.system_health,
             self.capture_controller
-        )
+        )       
         
         mavlink_cfg = self.config.get("mavlink", {})
         connection_string = mavlink_cfg.get("connection_string")

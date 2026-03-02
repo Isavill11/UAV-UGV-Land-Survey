@@ -145,7 +145,6 @@ class SelfCheckPrelaunch:
                         'Picam2 is not responding.', 
                         time.time())
                 
-
             except Exception as e: 
                 return PrecheckError(
                     'Camera', 

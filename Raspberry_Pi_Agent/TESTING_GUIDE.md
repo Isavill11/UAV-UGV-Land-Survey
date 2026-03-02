@@ -1,10 +1,12 @@
 
 # Running a test mission: 
+
 *Prepare Configuration*
 Raspberry_Pi_Agent/config.yaml
 mavlink:
   connection_string: "udp:127.0.0.1:14550"  # For simulator
-  # OR: "/dev/ttyS0" for real Raspberry Pi
+  # OR: 
+  "/dev/ttyS0" for real Raspberry Pi
   baud: 115200
 
 camera:
@@ -40,6 +42,8 @@ Expected output:
 ✓ PASS: Directory Structure
 ✓ ALL TESTS PASSED
 ---
+
+
 ### Test 2: Run Mission (Simulator or Real)
 Terminal 1: Start ground station receiver
 python ground_station_receiver.py --port 9999 --protocol udp
@@ -54,13 +58,15 @@ Watch for files being created in:
    - mission_data/images/         (captured)
    - mission_data/sent/           (transmitted)
    - mission_data/metadata/       (metadata)
+---
+
 
 ### Test 3: View Received Images
 On ground station machine:
 ls -lh received_images/verified/2026-02-*/
 Shows all received and verified images
 
-
+---
 
 ## Observations during testing: 
 Key Observations During Testing
@@ -95,7 +101,7 @@ mission_data/
 
 
 
-
+---
 # Data flow: 
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                         MISSION STARTUP SEQUENCE                            │
@@ -138,7 +144,7 @@ mission_data/
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                      MISSION LOOP (10Hz = Every 0.1s)                       │
 └─────────────────────────────────────────────────────────────────────────────┘
-
+---
 EVERY LOOP ITERATION:
 
 1. UPDATE CAPTURE CONTROLLER (line 200)

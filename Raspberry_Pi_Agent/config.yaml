@@ -7,7 +7,6 @@ platform:
   startup_delay_sec: 3
   loop_rate_hz: 10
 
-
 # MAVLink Flight Controller Configuration
 mavlink:
   # For serial: "/dev/serial" (Linux) or "COM3" (Windows)

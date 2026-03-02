@@ -54,12 +54,9 @@ class ImageMetadata:
 
 
 class StorageManager:
-    """Manages local storage of captured images"""
     
     def __init__(self, config: Dict):
-        """
-        Initialize storage manager
-        
+        """        
         Args:
             config: Configuration dictionary with storage settings
         """
@@ -93,10 +90,11 @@ class StorageManager:
         logger.info(f"  Max storage: {self.max_storage_mb}MB")
     
     def save_image(self, image_bytes: bytes, profile: str = "CAPTURING",
-                   drone_altitude: float = 0.0) -> Optional[ImageMetadata]:
+        
+        drone_altitude: float = 0.0) -> Optional[ImageMetadata]:
         """
         Save captured image to disk and track metadata
-        
+    
         Args:
             image_bytes: Raw image data
             profile: Capture profile name
@@ -154,8 +152,6 @@ class StorageManager:
     
     def get_pending_images(self, max_count: int = 100) -> List[ImageMetadata]:
         """
-        Get list of images pending transmission
-        
         Args:
             max_count: Maximum images to return
             
@@ -169,9 +165,7 @@ class StorageManager:
         return sorted(pending, key=lambda x: x.timestamp)[:max_count]
     
     def mark_transmitted(self, filename: str) -> bool:
-        """
-        Mark image as successfully transmitted
-        
+        """        
         Args:
             filename: Image filename
             
@@ -201,10 +195,7 @@ class StorageManager:
             return False
     
     def mark_transmission_failed(self, filename: str) -> bool:
-        """
-        Mark image transmission as failed
-        
-        Args:
+        """ Args:
             filename: Image filename
             
         Returns:
@@ -228,17 +219,15 @@ class StorageManager:
     
     def get_storage_status(self) -> Dict:
         """
-        Get current storage status
-        
         Returns:
             Dictionary with storage information
         """
         pending = len([m for m in self.image_metadata.values() 
-                      if m.transmission_state == TransmissionState.PENDING.value])
+                    if m.transmission_state == TransmissionState.PENDING.value])
         sent = len([m for m in self.image_metadata.values() 
-                   if m.transmission_state == TransmissionState.SENT.value])
+                    if m.transmission_state == TransmissionState.SENT.value])
         failed = len([m for m in self.image_metadata.values() 
-                     if m.transmission_state == TransmissionState.FAILED.value])
+                    if m.transmission_state == TransmissionState.FAILED.value])
         
         total_size_mb = sum(m.size_bytes for m in self.image_metadata.values()) / (1024 * 1024)
         available_mb = self._get_available_storage_mb()
@@ -254,7 +243,6 @@ class StorageManager:
         }
     
     def _get_available_storage_mb(self) -> float:
-        """Get available storage in MB"""
         try:
             stat = os.statvfs(self.base_dir)
             available_bytes = stat.f_bavail * stat.f_frsize
@@ -264,7 +252,6 @@ class StorageManager:
             return 0.0
     
     def _get_storage_health_status(self) -> str:
-        """Get health status of storage"""
         available = self._get_available_storage_mb()
         if available < self.min_storage_critical_mb:
             return "CRITICAL"
@@ -287,8 +274,6 @@ class StorageManager:
     
     def _cleanup_old_images(self) -> int:
         """
-        Delete oldest images to free up space
-        
         Returns:
             Number of images deleted
         """
@@ -321,7 +306,7 @@ class StorageManager:
             return 0
     
     def _save_metadata_index(self):
-        """Save metadata index to file"""
+
         try:
             index_file = os.path.join(self.metadata_dir, "index.json")
             index_data = {
@@ -336,7 +321,7 @@ class StorageManager:
             logger.error(f"Error saving metadata index: {e}")
     
     def _load_metadata_index(self):
-        """Load metadata index from file"""
+
         try:
             index_file = os.path.join(self.metadata_dir, "index.json")
             
@@ -355,11 +340,8 @@ class StorageManager:
 
 class ImageTransmitter:
     """Handles image transmission over WiFi to ground station"""
-    
     def __init__(self, config: Dict, storage_manager: StorageManager):
         """
-        Initialize image transmitter
-        
         Args:
             config: Configuration dictionary
             storage_manager: StorageManager instance
@@ -372,24 +354,20 @@ class ImageTransmitter:
         self.ground_station_ip = comm_cfg.get("ground_station_ip", "0.0.0.0")
         self.ground_station_port = comm_cfg.get("ground_station_port", 9999)
         
-        # Batching settings
         batch_cfg = config.get("batching", {})
         self.batch_size = batch_cfg.get("batch_size", 10)
         self.batch_timeout_sec = batch_cfg.get("time_threshold_sec", 30)
         
-        # Link quality thresholds for transmission
         link_cfg = comm_cfg.get("link_thresholds", {})
         self.rssi_good = 50                                    # Send at full speed
         self.rssi_degraded = link_cfg.get("rssi_degraded", 70) # Reduce batch size
         self.rssi_critical = link_cfg.get("rssi_critical", 85) # Don't send
         
-        # State
         self.running = False
         self._thread: Optional[threading.Thread] = None
         self._tx_queue: queue.Queue = queue.Queue()
         self._lock = threading.Lock()
         
-        # Statistics
         self.images_sent = 0
         self.bytes_sent = 0
         self.send_failures = 0
@@ -402,7 +380,6 @@ class ImageTransmitter:
             logger.info(f"  Batch size: {self.batch_size}")
     
     def start(self):
-        """Start transmission thread"""
         if not self.enabled:
             logger.debug("Ground station communication is disabled, transmission thread not started")
             return
@@ -417,7 +394,6 @@ class ImageTransmitter:
         logger.info("Image transmitter started")
     
     def stop(self):
-        """Stop transmission thread"""
         self.running = False
         if self._thread:
             self._thread.join(timeout=2)
@@ -425,12 +401,10 @@ class ImageTransmitter:
     
     def transmit_images(self, rssi: Optional[int] = None) -> Tuple[int, int]:
         """
-        Transmit pending images based on link quality
-        
         Args:
             rssi: Current RSSI signal strength (lower is better)
-                  None = assume good link
-                  
+                None = assume good link
+                
         Returns:
             Tuple of (images_sent, bytes_sent)
         """
@@ -475,12 +449,9 @@ class ImageTransmitter:
         return sent_count, bytes_sent
     
     def _calculate_batch_size(self, rssi: int) -> int:
-        """
-        Calculate batch size based on link quality
-        
+        """       
         Args:
             rssi: RSSI value (lower is better, higher is stronger)
-                  
         Returns:
             Batch size (0 = don't send)
         """
@@ -495,11 +466,8 @@ class ImageTransmitter:
     
     def _send_image(self, metadata: ImageMetadata) -> bool:
         """
-        Send a single image to ground station
-        
         Args:
             metadata: Image metadata
-            
         Returns:
             True if successful
         """
@@ -529,9 +497,7 @@ class ImageTransmitter:
     
     def _create_transmission_packet(self, metadata: ImageMetadata, 
                                     image_data: bytes) -> bytes:
-        """
-        Create transmission packet with metadata and image
-        
+        """        
         Packet format:
         - Header: "IMG_PKT" (7 bytes)
         - Filename length: uint16 (2 bytes)
@@ -550,7 +516,7 @@ class ImageTransmitter:
             Complete packet as bytes
         """
         try:
-            # Metadata as JSON
+            
             meta_dict = {
                 "filename": metadata.filename,
                 "timestamp": metadata.timestamp,
@@ -560,7 +526,6 @@ class ImageTransmitter:
             }
             meta_json = json.dumps(meta_dict).encode('utf-8')
             
-            # Build packet
             packet = b"IMG_PKT"  # Header
             packet += len(metadata.filename).to_bytes(2, 'big')
             packet += metadata.filename.encode('utf-8')
@@ -578,8 +543,6 @@ class ImageTransmitter:
     
     def _send_packet(self, packet: bytes) -> bool:
         """
-        Send packet to ground station via UDP/TCP
-        
         Args:
             packet: Packet data to send
             
@@ -597,7 +560,7 @@ class ImageTransmitter:
             return False
     
     def _send_udp(self, packet: bytes) -> bool:
-        """Send packet via UDP"""
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.settimeout(5.0)
@@ -609,7 +572,7 @@ class ImageTransmitter:
             return False
     
     def _send_tcp(self, packet: bytes) -> bool:
-        """Send packet via TCP"""
+
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.settimeout(5.0)
@@ -622,7 +585,7 @@ class ImageTransmitter:
             return False
     
     def _transmission_loop(self):
-        """Background transmission loop"""
+
         while self.running:
             try:
                 # Transmit queued images periodically
@@ -634,9 +597,7 @@ class ImageTransmitter:
                 time.sleep(1)
     
     def get_transmission_stats(self) -> Dict:
-        """
-        Get transmission statistics
-        
+        """        
         Returns:
             Dictionary with stats
         """
@@ -649,15 +610,8 @@ class ImageTransmitter:
 
 
 class ImageManager:
-    """
-    High-level manager for image storage and transmission
-    Integrates StorageManager and ImageTransmitter
-    """
-    
     def __init__(self, config: Dict):
-        """
-        Initialize image manager
-        
+        """        
         Args:
             config: Configuration dictionary
         """
@@ -668,10 +622,8 @@ class ImageManager:
         logger.info("ImageManager initialized")
     
     def save_captured_image(self, image_bytes: bytes, profile: str = "CAPTURING",
-                           altitude: float = 0.0) -> Optional[str]:
-        """
-        Save captured image
-        
+        altitude: float = 0.0) -> Optional[str]:
+        """        
         Args:
             image_bytes: Image data
             profile: Capture profile
@@ -686,20 +638,15 @@ class ImageManager:
         return None
     
     def start_transmission(self):
-        """Start automatic image transmission"""
         self.transmitter.start()
     
     def stop_transmission(self):
-        """Stop automatic image transmission"""
         self.transmitter.stop()
     
     def transmit_batch(self, link_quality_rssi: Optional[int] = None) -> Dict:
         """
-        Transmit batch of images based on link quality
-        
         Args:
             link_quality_rssi: Link quality (RSSI value)
-            
         Returns:
             Transmission statistics
         """
@@ -713,8 +660,6 @@ class ImageManager:
     
     def get_status(self) -> Dict:
         """
-        Get overall system status
-        
         Returns:
             Comprehensive status dictionary
         """
