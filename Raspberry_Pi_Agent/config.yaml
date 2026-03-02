@@ -10,11 +10,11 @@ platform:
 
 # MAVLink Flight Controller Configuration
 mavlink:
-  # Connection string for flight controller
-  # For serial: "/dev/ttyS0" (Linux) or "COM3" (Windows)
-  # For UDP: "udp:127.0.0.1:14550"
+  # For serial: "/dev/serial" (Linux) or "COM3" (Windows)
+  # connection_string: "udp:0.0.0.0:14550"
   # For TCP: "tcp:127.0.0.1:5760"
-  connection_string: "/dev/ttyS0"
+  
+  connection_string: "/dev/serial0"
   baud: 115200
   
   # Timeout for MAVLink heartbeat (seconds)
@@ -23,13 +23,12 @@ mavlink:
 
 camera:
   id: 0  # Camera device index (0 for first camera)
-  type: "Webcam" ## PiCam | Webcam | None
-  enable_on_start: false
+  type: "PiCam" ## PiCam | Webcam | None
+  enable_on_start: true
 
   dimensions:
     width: 640
     height: 480
-    ratio: 4/3
   capture_profiles:
     CAPTURING:
       interval: 1.0          # Capture every 1 second
@@ -94,8 +93,9 @@ batching:
   transmission_interval_sec: 5                # Check for pending images every N seconds
 
 communication:
+  enabled: false
   protocol: "udp"                            # udp | tcp | mavlink | custom
-  ground_station_ip: "192.168.1.100"         # Ground station IP (UPDATE FOR YOUR NETWORK)
+  ground_station_ip: "192.168.1.225"         # Ground station IP (UPDATE FOR YOUR NETWORK)
   ground_station_port: 9999                   # Ground station receiving port (UPDATE FOR YOUR NETWORK)
   uav_id: "UAV-001"                          # This UAV identifier
   ugv_id: ""
@@ -154,5 +154,5 @@ thermal_management:
       capture_rate_hz: 2
       tx_enabled: false
     critical:
-      capture_rate: 0
+      capture_rate_hz: 0
       tx_enabled: false

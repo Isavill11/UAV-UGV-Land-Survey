@@ -368,6 +368,7 @@ class ImageTransmitter:
         self.storage = storage_manager
         
         comm_cfg = config.get("communication", {})
+        self.enabled = comm_cfg.get("enabled", True)
         self.ground_station_ip = comm_cfg.get("ground_station_ip", "0.0.0.0")
         self.ground_station_port = comm_cfg.get("ground_station_port", 9999)
         
@@ -393,12 +394,19 @@ class ImageTransmitter:
         self.bytes_sent = 0
         self.send_failures = 0
         
-        logger.info(f"ImageTransmitter initialized")
-        logger.info(f"  Ground station: {self.ground_station_ip}:{self.ground_station_port}")
-        logger.info(f"  Batch size: {self.batch_size}")
+        if not self.enabled:
+            logger.info(f"ImageTransmitter initialized (communication DISABLED)")
+        else:
+            logger.info(f"ImageTransmitter initialized")
+            logger.info(f"  Ground station: {self.ground_station_ip}:{self.ground_station_port}")
+            logger.info(f"  Batch size: {self.batch_size}")
     
     def start(self):
         """Start transmission thread"""
+        if not self.enabled:
+            logger.debug("Ground station communication is disabled, transmission thread not started")
+            return
+        
         if self.running:
             logger.warning("Transmitter already running")
             return
@@ -426,6 +434,9 @@ class ImageTransmitter:
         Returns:
             Tuple of (images_sent, bytes_sent)
         """
+        if not self.enabled:
+            return 0, 0
+        
         if rssi is None:
             rssi = 50  # Assume good link if not provided
         
@@ -711,6 +722,7 @@ class ImageManager:
             "storage": self.storage.get_storage_status(),
             "transmission": self.transmitter.get_transmission_stats(),
             "ground_station": {
+                "enabled": self.transmitter.enabled,
                 "ip": self.transmitter.ground_station_ip,
                 "port": self.transmitter.ground_station_port,
                 "protocol": self.config.get("communication", {}).get("protocol", "udp")

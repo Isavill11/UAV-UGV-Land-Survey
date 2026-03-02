@@ -6,13 +6,9 @@ import glob
 
 # --- CONFIGURATION ---
 MODEL_PATH = 'survey_animal_classifier.tflite'
-TEST_IMAGE_DIR = 'test_images' 
+TEST_IMAGE_DIR = 'test_images'  # Create this folder and put some images in it
 IMG_SIZE = (224, 224)
-
-# THRESHOLD LOGIC:
-# 1.0 = Certain Yes Animal | 0.0 = Certain No Animal
-# We set this to 0.35 to ensure the drone doesn't miss any targets for the rover.
-THRESHOLD = 0.35 
+THRESHOLD = 0.3 # Confidence threshold for "Animal"
 
 def load_and_preprocess(image_path):
     # Load image with OpenCV
@@ -23,8 +19,7 @@ def load_and_preprocess(image_path):
     # Resize to the model's required input size
     img_resized = cv2.resize(img, IMG_SIZE)
     
-    # CRITICAL: MobileNetV2 preprocessing (scale pixels to [-1, 1])
-    # This MUST match the training script exactly.
+    # MobileNetV2 preprocessing: scale pixels from [0, 255] to [-1, 1]
     input_data = img_resized.astype(np.float32)
     input_data = (input_data / 127.5) - 1.0
     
@@ -34,10 +29,6 @@ def load_and_preprocess(image_path):
 
 def main():
     # 1. Load the TFLite model and allocate tensors
-    if not os.path.exists(MODEL_PATH):
-        print(f"Error: {MODEL_PATH} not found. Run training first!")
-        return
-
     interpreter = tf.lite.Interpreter(model_path=MODEL_PATH)
     interpreter.allocate_tensors()
 
@@ -48,43 +39,37 @@ def main():
     # 2. Get list of test images
     image_paths = glob.glob(os.path.join(TEST_IMAGE_DIR, "*.*"))
     if not image_paths:
-        print(f"No images found in {TEST_IMAGE_DIR}. Add some drone crops to test!")
+        print(f"No images found in {TEST_IMAGE_DIR}. Please add some images to test!")
         return
 
-    print(f"🛰️  Starting UAV/UGV Survey Test...")
-    print(f"Sensitivity Threshold: {THRESHOLD} (Higher score = More likely Animal)")
+    print(f"🚀 Testing {len(image_paths)} images...")
 
     for path in image_paths:
         input_data, original_img = load_and_preprocess(path)
         if input_data is None: continue
 
-        # 3. Run inference
+        # 3. Set the input tensor and run inference
         interpreter.set_tensor(input_details[0]['index'], input_data)
         interpreter.invoke()
 
         # 4. Get the result (Sigmoid output: 0 to 1)
-        # Score near 1.0 = Animal | Score near 0.0 = Grass/Dirt
         prediction = interpreter.get_tensor(output_details[0]['index'])[0][0]
         
-        # Determine status
-        if prediction >= THRESHOLD:
-            label = f"ANIMAL DETECTED ({prediction:.2f})"
-            color = (0, 255, 0) # Green for detection
-            status_msg = "✅ TARGET FOUND"
-        else:
-            label = f"NO ANIMAL ({prediction:.2f})"
-            color = (0, 0, 255) # Red for clear
-            status_msg = "❌ CLEAR FIELD"
+        # Determine class based on threshold
+        label = "Animal" if prediction >= THRESHOLD else "No Animal"
+        color = (0, 255, 0) if label == "Animal" else (0, 0, 255)
         
-        # 5. Visual Output
-        cv2.putText(original_img, label, (10, 35), 
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
+        # 5. Display the result
+        display_text = f"{label} ({prediction:.2f})"
         
-        print(f"Image: {os.path.basename(path):<20} | Score: {prediction:.4f} | {status_msg}")
         
-        cv2.imshow('Survey Model Test', original_img)
-        # Press 'q' to quit, any other key for next image
-        if cv2.waitKey(0) & 0xFF == ord('q'):
+        print(f"Image: {os.path.basename(path)} | Score: {prediction:.4f} | Label: {label}")
+        resize = cv2.resize(original_img, [640, 420])
+        cv2.putText(resize, display_text, (10, 30), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
+        
+        cv2.imshow('TFLite Model Test', resize)
+        if cv2.waitKey(0) & 0xFF == ord('q'): # Press 'q' to move to next or quit
             break
 
     cv2.destroyAllWindows()

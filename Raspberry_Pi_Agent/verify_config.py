@@ -227,7 +227,12 @@ class SelfCheckPrelaunch:
 
         
     def _check_network(self):
-        comms = self.config['communication']
+        comms = self.config.get('communication', {})
+        
+        # Skip network check if communication is disabled
+        if not comms.get('enabled', True):
+            return None
+        
         try:
             endpoint = f"{comms['protocol']}:{comms['ground_station_ip']}:{comms['ground_station_port']}"
         except KeyError as e: 
@@ -268,7 +273,6 @@ class SelfCheckPrelaunch:
                 "Thermal", 
                 'Thermal Configurations not found', 
                 time.time(), 
-                
             )
         
         read_interval = thermal_configs['read_interval_sec'] ###############

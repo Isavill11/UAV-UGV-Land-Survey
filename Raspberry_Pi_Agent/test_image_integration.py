@@ -44,8 +44,11 @@ def test_config(config_path: str) -> bool:
             all_ok = False
     
     # Check critical settings
-    if config.get('communication', {}).get('ground_station_ip') == '0.0.0.0':
-        logger.warning("⚠ ground_station_ip is still 0.0.0.0 - MUST UPDATE")
+    comm_enabled = config.get('communication', {}).get('enabled', True)
+    if not comm_enabled:
+        logger.info("✓ Communication disabled in config")
+    elif config.get('communication', {}).get('ground_station_ip') == '0.0.0.0':
+        logger.warning("⚠ ground_station_ip is still 0.0.0.0 - MUST UPDATE (or disable communication)")
         all_ok = False
     else:
         logger.info(f"✓ ground_station_ip: {config['communication']['ground_station_ip']}")
