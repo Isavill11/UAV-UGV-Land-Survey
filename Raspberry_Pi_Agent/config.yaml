@@ -112,6 +112,10 @@ communication:
     rssi_degraded: 70       # Signal strength threshold for degraded state
     rssi_critical: 85       # Signal strength threshold for critical state
     link_check_interval_sec: 1
+  # If true, a missing/poor radio link will be treated as a mission-blocking
+  # critical issue during preflight and runtime. Set to false to only WARN
+  # when the radio link is bad and allow missions to continue.
+  require_radio_link: true
   max_packet_loss_percent: 10.0
   heartbeat_interval_sec: 1
 

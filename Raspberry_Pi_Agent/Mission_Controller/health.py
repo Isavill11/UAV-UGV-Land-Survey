@@ -71,38 +71,38 @@ class DroneHealth:
             return BatteryState.OK
     
     def update_from_heartbeat(self, msg):
-        """Update drone health from HEARTBEAT message"""
+
         self.armed = bool(msg.base_mode & 128)  # Check armed bit
         self.system_status = msg.system_status
         self.last_update = time.time()
     
     def update_from_sys_status(self, msg):
-        """Update drone health from SYS_STATUS message"""
+
         self.battery_remaining = msg.battery_remaining  # 0-100
         self.cpu_load = msg.load  # CPU load in %
         self.last_update = time.time()
     
     def update_from_battery_status(self, msg):
-        """Update drone health from BATTERY_STATUS message"""
+
         if msg.voltages and len(msg.voltages) > 0:
             self.battery_voltage = msg.voltages[0] / 1000.0  # Convert to volts
         self.battery_remaining = msg.battery_remaining if msg.battery_remaining >= 0 else None
         self.last_update = time.time()
     
     def update_from_gps_raw(self, msg):
-        """Update drone health from GPS_RAW_INT message"""
+
         self.gps_lock = msg.fix_type >= 3  # 3+ is RTK fix or better
         self.altitude = msg.alt / 1000.0  # Convert to meters
         self.last_update = time.time()
     
     def update_from_local_position(self, msg):
-        """Update drone health from LOCAL_POSITION_NED message"""
+
         # Negative z is altitude above origin
         self.altitude = max(-msg.z, 0) if msg.z else 0
         self.last_update = time.time()
     
     def is_healthy(self, cfg) -> bool:
-        """Check if drone is in a healthy state"""
+
         if self._is_stale(cfg.get("mavlink_timeout", 2.0)):
             return False
         
@@ -117,7 +117,7 @@ class DroneHealth:
         return True
     
     def _is_stale(self, timeout: float = 2.0) -> bool:
-        """Check if health data is stale (no recent updates)"""
+
         return (time.time() - self.last_update) > timeout
     
     
@@ -234,26 +234,47 @@ class LinkHealth:
     def evaluate(self, cfg) -> list[HealthIssue]:
         issues = []
         now = time.time()
+        require_link = True
+        try:
+            require_link = cfg.get("communication", {}).get("require_radio_link", True)
+        except Exception:
+            require_link = True
 
+        # Helper to map configured threshold locations (backwards compatible)
+        def _get_threshold(name, default):
+            # Try nested keys used in config.yaml first, then top-level fallback
+            try:
+                return cfg["communication"]["link_thresholds"].get(name, cfg.get(name, default))
+            except Exception:
+                return cfg.get(name, default)
+
+        # If stale and link is required => CRITICAL; else WARN
         if self._is_stale():
+            sev = Severity.CRITICAL if require_link else Severity.DEGRADED
             issues.append(
                 HealthIssue(
                     source="LINK",
                     message="Radio link stale (no updates)",
-                    severity=Severity.CRITICAL,
+                    severity=sev,
                     timestamp=now
                 ))
             return issues
 
-        if self._is_bad(cfg):
+
+        rssi_degraded = _get_threshold("rssi_degraded", 85)
+        rssi_critical = _get_threshold("rssi_critical", 100)
+
+
+        if self._is_bad({"rssi_critical": rssi_critical}):
+            sev = Severity.CRITICAL if require_link else Severity.DEGRADED
             issues.append(
                 HealthIssue(
                     source="LINK",
                     message=f"Radio RSSI critical: {self.rssi}",
-                    severity=Severity.CRITICAL,
+                    severity=sev,
                     timestamp=now
                 ))
-        elif self._is_degraded(cfg):
+        elif self._is_degraded({"rssi_degraded": rssi_degraded}):
             issues.append(
                 HealthIssue(
                     source="LINK",
@@ -272,14 +293,23 @@ class LinkHealth:
             return True
         if self.rssi is None:
             return True
-        return self.rssi < cfg["rssi_degraded"]
+        # cfg may be full config or a small dict with threshold keys
+        try:
+            threshold = cfg.get("rssi_degraded") if isinstance(cfg, dict) and "rssi_degraded" in cfg else cfg["communication"]["link_thresholds"]["rssi_degraded"]
+        except Exception:
+            threshold = cfg.get("rssi_degraded", 85) if isinstance(cfg, dict) else 85
+        return self.rssi < threshold
 
     def _is_bad(self, cfg) -> bool:  #### if the link health is bad, this is a CRITICAL State.
         if self._is_stale():
             return True
         if self.rssi is None:
             return True
-        return self.rssi < cfg["rssi_critical"]
+        try:
+            threshold = cfg.get("rssi_critical") if isinstance(cfg, dict) and "rssi_critical" in cfg else cfg["communication"]["link_thresholds"]["rssi_critical"]
+        except Exception:
+            threshold = cfg.get("rssi_critical", 100) if isinstance(cfg, dict) else 100
+        return self.rssi < threshold
             
 
 
@@ -296,7 +326,7 @@ class SystemHealth:
         issues.extend(self.pi.evaluate(cfg))
         issues.extend(self.radio.evaluate(cfg))
 
-        # determine system state
+
         if any(i.severity == Severity.CRITICAL for i in issues):
             return SystemState.CRITICAL, issues
 
