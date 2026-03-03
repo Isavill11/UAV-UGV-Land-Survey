@@ -33,7 +33,7 @@ class CaptureController:
         self.dimensions = camera_cfg["dimensions"]
 
         self.state = CaptureState.OFF
-        self.active_profile = None
+        self.active_profile = None 
         self.interval = 0.0
         self.jpeg_quality = 90
         self.save_dir = None
@@ -83,6 +83,7 @@ class CaptureController:
                 )
                 self.camera.configure(conf)
                 self.camera.start()
+                self.camera.stop()
 
             else:
                 logger.error(f"Unsupported OS: {self.os}")
@@ -154,12 +155,15 @@ class CaptureController:
 
             if self.backend == "opencv":
                 ret, frame = self.camera.read()
+                self.camera.imshow('Live opencv video', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
                 if not ret:
                     logger.error("Failed to capture frame (OpenCV)")
                     return False
 
             elif self.backend == "picamera2":
                 frame = self.camera.capture_array()
+                self.camera.imshow('Live picamera video', cv2.cvtColor(frame, cv2.COLOR_RGB2BGR))
+
                 if frame is None:
                     logger.error("Failed to capture frame (Picamera2)")
                     return False
