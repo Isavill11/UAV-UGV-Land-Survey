@@ -1,4 +1,4 @@
-# 🚀 START HERE – UAV Raspberry Pi Agent
+# START HERE – UAV Raspberry Pi Agent
 
 Welcome to the UAV Raspberry Pi Autonomous Mission System documentation.
 
@@ -17,9 +17,8 @@ If you are new to the system, follow this reading order:
 
 # Documentation Overview
 
-## 1: SYSTEM_OVERVIEW.md  (Understand the Architecture)
+## 1: [SYSTEM_OVERVIEW.md](Raspberry_Pi_Agent/Documentation/SYSTEM_OVERVIEW.md)
 
-- Executive summary
 - Full system architecture diagram
 - Message flow diagrams
 - State machine diagrams
@@ -32,16 +31,14 @@ Read this first to understand how everything connects.
 
 ---
 
-## 2: CONFIGURATION_REFERENCE.md  (Understand Tuning Parameters)
-
+## 2: [CONFIGURATION_REFERENCE.md](Raspberry_Pi_Agent/Documentation/CONFIGURATION_REFERENCE.md)
 - MAVLink connection settings
 - Battery thresholds
 - Thermal thresholds
-- RSSI thresholds
 - Capture profiles
 - Storage configuration
 - Transmission batching
-- Example configurations (conservative, long mission, poor link)
+- Example configurations (conservative, long mission, etc)
 
 ---
 

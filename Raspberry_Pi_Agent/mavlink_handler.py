@@ -11,7 +11,7 @@ from typing import Optional, Callable, List
 from collections import deque
 
 try:
-    from pymavlink.dialects.v10 import ardupilotmega as mavutil
+    import pymavlink as mavutil
     PYMAVLINK_AVAILABLE = True
 except ImportError:
     PYMAVLINK_AVAILABLE = False

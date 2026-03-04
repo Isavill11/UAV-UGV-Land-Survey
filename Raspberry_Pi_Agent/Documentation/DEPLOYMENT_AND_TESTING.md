@@ -25,61 +25,57 @@ Baud rate: 115200
 ## Phase 3 – MAVLink Connection Test
 
 Create a simple connection test:
-
 - Connect using MAVLinkHandler
 - Confirm heartbeat received
 - Verify system ID and component ID
 
+Run from project folder directory on terminal: 
+```
+python3 -c 'from Raspberry_Pi_Agent.mavlink_handler import MAVLinkHandler; MAVLinkHandler("/dev/serial0").connect()'
+```
+
 If no heartbeat:
 - Check wiring
 - Verify baud rate
-- Confirm flight controller powered
+- Confirm flight controller powered and telemetry connected.
 
 ---
 
 ## Phase 4 – Camera Test
+- Run [[test_image_integration.py](../test_image_integration.py)]
+- Verify pathing and folder creation
+- Run: 
+``` 
+python3 -c 'from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController; CaptureController.start()'
 
-- Initialize CaptureController
-- Start capture profile
-- Verify images written to disk
-- Stop capture cleanly
+```
 
 Check:
-- Correct camera ID
+- Camera Connection/status
 - Storage permissions
 
 ---
 
 ## Phase 5 – Dry Run (On Ground)
 
-1. Run mission code.
+1. Run mission code on project folder path using: 
+```
+python -m Raspberry_Pi_Agent.notmain
+```
+
 2. Verify:
    - Heartbeat logs appear
    - Battery data updates
 3. Arm drone (without takeoff).
 4. Switch to AUTO.
-5. Confirm transition to CAPTURING.
-6. Disarm and verify shutdown.
+5. Disarm and verify shutdown.
 
 ---
 
-## Phase 6 – Stress Testing
 
-Simulate:
+## Phase 6 – First Flight
 
-- Low battery
-- High CPU temperature
-- Poor WiFi link
-- Low storage space
-
-Verify correct transitions:
-CAPTURING → DEGRADED → FAILSAFE
-
----
-
-## Phase 7 – First Flight
-
-Checklist:
+Check:
 
 - Fully charged battery
 - Open test field
@@ -95,7 +91,7 @@ Post-flight:
 
 ## Troubleshooting
 
-| Problem | Solution |
+| Problem  | Solution |
 |----------|----------|
 | No connection | Check serial port |
 | No heartbeat | Check wiring |
@@ -106,7 +102,7 @@ Post-flight:
 ---
 
 ## Production Deployment
-
+- Tune all config thresholds
 - Tune battery thresholds
 - Tune thermal thresholds
 - Adjust capture rates
