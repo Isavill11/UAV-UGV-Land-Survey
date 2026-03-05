@@ -1,0 +1,7 @@
+[submodule "ugv/ros2_ws/src/rtabmap_ros"]
+	path = ugv/ros2_ws/src/rtabmap_ros
+	url = https://github.com/introlab/rtabmap_ros.git
+	branch = ros2
+[submodule "ugv/ros2_ws/src/rtabmap"]
+	path = ugv/ros2_ws/src/rtabmap
+	url = https://github.com/introlab/rtabmap.git
