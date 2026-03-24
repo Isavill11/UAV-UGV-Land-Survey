@@ -27,7 +27,7 @@ class ImageReceiver:
     """Receive and store images transmitted from UAV"""
     
     def __init__(self, listen_ip: str = "0.0.0.0", listen_port: int = 9999, 
-                 save_dir: str = "./received_images", protocol: str = "udp"):
+                save_dir: str = "./received_images", protocol: str = "udp"):
         """
         Initialize receiver
         
