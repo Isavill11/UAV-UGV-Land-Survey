@@ -212,104 +212,67 @@ class PiHealth:
 
 @dataclass
 class LinkHealth:
-    rssi: int | None = None
-    remrssi: int | None = None
-    rxerrors: int | None = None
-    fixed: int | None = None
-    last_update: float = field(default_factory=time.time)
+    last_heartbeat: float | None = None
+    last_sys_status: float | None = None
+    heartbeat_received: bool = False
+    sys_status_received: bool = False
+    
+    MESSAGE_TIMEOUT: float = 3.0  # seconds
 
-    packet_loss_percent: float | None = None
-    connected: bool = False
+    def update_heartbeat(self):
+        """Update heartbeat timestamp when received."""
+        self.last_heartbeat = time.time()
+        self.heartbeat_received = True
+
+    def update_sys_status(self):
+        """Update SYS_STATUS timestamp when received."""
+        self.last_sys_status = time.time()
+        self.sys_status_received = True
 
     def link_state(self, cfg) -> LinkState:
-        if self._is_stale(): 
-            return LinkState.STALE
-        if self._is_degraded(cfg): 
-            return LinkState.DEGRADED
-        if self._is_bad(cfg): 
+        if self._heartbeat_timeout():
+            return LinkState.CRITICAL
+        if self._sys_status_timeout():
             return LinkState.CRITICAL
         return LinkState.OK
-    
-    
+
     def evaluate(self, cfg) -> list[HealthIssue]:
         issues = []
         now = time.time()
-        require_link = True
-        try:
-            require_link = cfg.get("communication", {}).get("require_radio_link", True)
-        except Exception:
-            require_link = True
 
-        # Helper to map configured threshold locations (backwards compatible)
-        def _get_threshold(name, default):
-            # Try nested keys used in config.yaml first, then top-level fallback
-            try:
-                return cfg["communication"]["link_thresholds"].get(name, cfg.get(name, default))
-            except Exception:
-                return cfg.get(name, default)
-
-        # If stale and link is required => CRITICAL; else WARN
-        if self._is_stale():
-            sev = Severity.CRITICAL if require_link else Severity.DEGRADED
+        # Check heartbeat timeout
+        if self._heartbeat_timeout():
             issues.append(
                 HealthIssue(
                     source="LINK",
-                    message="Radio link stale (no updates)",
-                    severity=sev,
+                    message=f"Heartbeat timeout (no message for {self.MESSAGE_TIMEOUT}s)",
+                    severity=Severity.CRITICAL,
                     timestamp=now
                 ))
-            return issues
 
-
-        rssi_degraded = _get_threshold("rssi_degraded", 85)
-        rssi_critical = _get_threshold("rssi_critical", 100)
-
-
-        if self._is_bad({"rssi_critical": rssi_critical}):
-            sev = Severity.CRITICAL if require_link else Severity.DEGRADED
+        # Check SYS_STATUS timeout
+        if self._sys_status_timeout():
             issues.append(
                 HealthIssue(
                     source="LINK",
-                    message=f"Radio RSSI critical: {self.rssi}",
-                    severity=sev,
-                    timestamp=now
-                ))
-        elif self._is_degraded({"rssi_degraded": rssi_degraded}):
-            issues.append(
-                HealthIssue(
-                    source="LINK",
-                    message=f"Radio RSSI degraded: {self.rssi}",
-                    severity=Severity.DEGRADED,
+                    message=f"SYS_STATUS timeout (no message for {self.MESSAGE_TIMEOUT}s)",
+                    severity=Severity.CRITICAL,
                     timestamp=now
                 ))
 
         return issues
-        
-    def _is_stale(self, timeout=2.0):
-            return (time.time() - self.last_update) > timeout
 
-    def _is_degraded(self, cfg) -> bool:
-        if self._is_stale():
+    def _heartbeat_timeout(self) -> bool:
+        """Check if heartbeat has timed out."""
+        if not self.heartbeat_received or self.last_heartbeat is None:
             return True
-        if self.rssi is None:
-            return True
-        # cfg may be full config or a small dict with threshold keys
-        try:
-            threshold = cfg.get("rssi_degraded") if isinstance(cfg, dict) and "rssi_degraded" in cfg else cfg["communication"]["link_thresholds"]["rssi_degraded"]
-        except Exception:
-            threshold = cfg.get("rssi_degraded", 85) if isinstance(cfg, dict) else 85
-        return self.rssi < threshold
+        return (time.time() - self.last_heartbeat) > self.MESSAGE_TIMEOUT
 
-    def _is_bad(self, cfg) -> bool:  #### if the link health is bad, this is a CRITICAL State.
-        if self._is_stale():
+    def _sys_status_timeout(self) -> bool:
+        """Check if SYS_STATUS has timed out."""
+        if not self.sys_status_received or self.last_sys_status is None:
             return True
-        if self.rssi is None:
-            return True
-        try:
-            threshold = cfg.get("rssi_critical") if isinstance(cfg, dict) and "rssi_critical" in cfg else cfg["communication"]["link_thresholds"]["rssi_critical"]
-        except Exception:
-            threshold = cfg.get("rssi_critical", 100) if isinstance(cfg, dict) else 100
-        return self.rssi < threshold
+        return (time.time() - self.last_sys_status) > self.MESSAGE_TIMEOUT
             
 
 

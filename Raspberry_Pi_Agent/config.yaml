@@ -114,7 +114,7 @@ communication:
   # If true, a missing/poor radio link will be treated as a mission-blocking
   # critical issue during preflight and runtime. Set to false to only WARN
   # when the radio link is bad and allow missions to continue.
-  require_radio_link: true
+  require_radio_link: false
   max_packet_loss_percent: 10.0
   heartbeat_interval_sec: 1
 

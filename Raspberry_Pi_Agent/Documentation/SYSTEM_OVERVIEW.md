@@ -7,9 +7,9 @@ It integrates MAVLink communication, health monitoring, mission state control, a
 
 The agent:
 
-- Connects to an ArduPilot flight controller via MAVLink
+- Connects to an ArduPilot flight controller directly and communicates via MAVLink
 - Monitors drone and Raspberry Pi health
-- Executes a mission state machine
+- Executes a mission state machine and controls camera capture rates/raspberry pi functionalities
 - Captures images adaptively
 - Stores and transmits images based on link quality
 - Handles failsafe and shutdown conditions automatically
@@ -20,13 +20,13 @@ The agent:
 
 ### High-Level Architecture
 
-Flight Controller (ArduPilot)  
+Flight Controller (ArduPilot) sends data to agent which follows this flowdown:
 → MAVLinkHandler  
-→ Health System (DroneHealth, PiHealth, LinkHealth)  
+→ Updates Health System (DroneHealth, PiHealth, LinkHealth)  
 → SystemHealth Evaluation  
-→ MissionController (State Machine)  
-→ CaptureController  
-→ ImageManager (Storage + Transmission)
+→ Updates MissionController (State Machine)  
+→ Updates CaptureController  
+→ Updates ImageManager (Storage + Transmission)
 
 ---
 
@@ -35,10 +35,10 @@ Flight Controller (ArduPilot)
 1. Flight controller sends MAVLink messages (HEARTBEAT, SYS_STATUS, GPS, etc.).
 2. MAVLinkHandler receives and routes messages.
 3. Health objects update internal state.
-4. SystemHealth evaluates thresholds.
-5. MissionController determines mission state.
-6. CaptureController adjusts capture profile.
-7. ImageManager saves and transmits images.
+4. SystemHealth evaluates thresholds and overall health state.
+5. MissionController analyzes system health and determines mission state.
+6. MissionController updates CaptureController to adjust the capture profile.
+7. ImageManager saves and transmits images to ground station.
 
 This loop runs at ~10Hz.
 
@@ -67,7 +67,7 @@ INIT → PREFLIGHT → READY → CAPTURING → SHUTDOWN
 | Battery 25–40% | CAPTURING → DEGRADED |
 | Battery <25% | → FAILSAFE |
 | Temp >80°C | → FAILSAFE |
-| RSSI Critical | → FAILSAFE |
+| Stale Mavlink Heartbeat | → FAILSAFE |
 | Drone Disarmed | → SHUTDOWN |
 | Recovery | DEGRADED → CAPTURING |
 
@@ -90,9 +90,7 @@ Evaluated every loop cycle.
 - CPU load
 
 ### Radio Link Health
-- RSSI
-- Packet errors
-- Heartbeat timeout
+- Mavlink Heartbeat Status
 
 ### Decision Rule
 
@@ -103,6 +101,7 @@ Evaluated every loop cycle.
 ---
 
 ## 6. Thread Architecture
+We run a thread architecture to ensure mission efficiency
 
 ### Main Thread
 - Runs mission loop

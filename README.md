@@ -2,96 +2,48 @@
 
 ## Getting Started
 ### 1. Clone the Repository
-git clone https://github.com/<your-username>/UAV-UGV-Land-Survey.git
+```
+git clone https://github.com/Isavill11/UAV-UGV-Land-Survey
 cd UAV-UGV-Land-Survey
+```
 
 ### 2. Open the Folder in Your IDE
-
-Use any Python-compatible IDE (such as PyCharm, VS Code, or Jupyter Notebook).
-
-##  Dataset Setup
-### 1. Download Dataset
-
-Download the dataset from Kaggle:
-🔗 [Cattle Detection in Aerial Imagery](https://www.kaggle.com/datasets/magnusmakgasane/cattle-detection-in-aerial-imagery)
-
-Unzip the dataset and save all folders directly in the main project directory.
-
-## Data Preparation
-### 1. Format the CSV Files
-
-Run:
+### 3. Create a new branch for your feature additions: 
 ```
-python prepare_data_from_csv.py
+git checkout -b <branch-name-here>
+
+to see all branch names: 
+
+git branch
 ```
 
-✅ This script organizes your dataset into the correct folder format for training and validation.
 
-Tip: Ensure that your image and CSV file directories are correctly set within the script before running.
-
-### 2. Verify Folder Paths
-
-Next, verify that the data paths are valid:
+### 4. Push the branch to the remote repository
 ```
-python verify_paths.py
+git push -u origin <new-branch-name>
 ```
+ 
+---
+### 5. Do not push changes to main, keep changes on your branch
 
-If you see no errors, everything is set up correctly!
-If you do see errors, check:
+---
 
-- Folder names
-- File paths in the script
-- Directory structure
+### Project Structure
 
-### 3. Update Configuration (if needed)
-
-If you renamed folders or moved files, open:
-```
-cattle_config.yaml
-```
-
-and update the train and val dataset paths.
-The file is in YAML format (like JSON, but cleaner).
-
-### 4. Run Dataset Check
-
-Finally, confirm your dataset integrity:
-```
-python check_dataset.py
-```
-
-If any issues appear, double-check your paths — most errors are path-related.
-
-## Model Training
-
-Once your dataset is ready and verified, run:
-```
-python train.py
-```
-
-This will start the model training process using your prepared data.
-
-🧩 Folder Structure
 ```
 UAV-UGV-Land-Survey/
 │
-├── prepare_data_from_csv.py
-├── verify_paths.py
-├── check_dataset.py
-├── train.py
-├── cattle_config.yaml
+├──Machine_Learning
 │
-├── /images
-│   ├── train/
-│   └── valid/
-│
-├── /labels
-│   ├── train/
-│   └── valid/
-│
-└── README.md
+└──Raspberry_Pi_Agent
 ```
 
+
+- Go to the [Machine_Learning](Machine_Learning/TRAINING_MODEL.md) folder to view or add ML capabilities
+
+- Go to the [Raspberry_Pi_Agent](Raspberry_Pi_Agent/START_HERE.md) folder to view or make changes to the drone Raspberry Pi camera agent
+
+---
 ## Authors
 
 Isabella Villarreal
@@ -100,4 +52,8 @@ Jesse Fernandez
 
 Roberto Esquivel
 
-## License
+Jose Bermudez
+
+Miguel Miranda
+
+Rafael Gonzales
