@@ -1,0 +1,66 @@
+version: "3.8"
+
+# UGV VSLAM service
+#
+# Assumptions:
+#   - The image has been built with: docker compose -f docker-compose.ugv.yml build
+#   - A RealSense camera is plugged in via USB.
+#   - The host machine runs Ubuntu 24.04 with a kernel that exposes USB devices.
+#
+# Launch:
+#   docker compose -f ugv/docker/docker-compose.ugv.yml up
+#
+# Override the command (e.g. localisation mode):
+#   docker compose -f ugv/docker/docker-compose.ugv.yml run ugv_vslam \
+#       ros2 launch ugv_vslam ugv_vslam.launch.py localization:=true
+
+services:
+  ugv_vslam:
+    build:
+      # Build context is the repository root so the COPY in the Dockerfile
+      # can reach ugv/ros2_ws/src and ugv/docker/ros_entrypoint.sh.
+      context: ../..
+      dockerfile: ugv/docker/Dockerfile
+
+    image: ugv_vslam:jazzy
+
+    # ── Networking ───────────────────────────────────────────────────────
+    # host mode is required for ROS 2 DDS discovery across the robot network.
+    network_mode: host
+
+    # ── Privileges & devices ─────────────────────────────────────────────
+    # privileged is needed for USB device enumeration and udev rules.
+    privileged: true
+
+    devices:
+      # Expose all /dev entries (covers /dev/video*, /dev/usb*, etc.)
+      - /dev:/dev
+
+    volumes:
+      # Full /dev access (redundant with devices: but keeps udev happy)
+      - /dev:/dev
+      # RealSense USB subsystem
+      - /dev/bus/usb:/dev/bus/usb
+      # Persist the RTAB-Map database across container restarts
+      - rtabmap_db:/root/.ros
+
+    environment:
+      # CycloneDDS for best LAN performance and low-latency local comms
+      - RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+      # Forward the host display for optional GUI tools (rviz2, rtabmap_viz)
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+
+    # Pass through X11 socket for GUI (harmless if no display is attached)
+    # volumes entry is above; x11 socket bind-mount added here:
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    restart: unless-stopped
+
+    stdin_open: true
+    tty: true
+
+volumes:
+  # Named volume for RTAB-Map database persistence
+  rtabmap_db:

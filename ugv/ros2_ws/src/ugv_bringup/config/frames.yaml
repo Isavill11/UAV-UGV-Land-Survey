@@ -1,0 +1,29 @@
+# Static transform: base_link -> camera_link
+#
+# Describes the physical mounting of the Intel RealSense camera on the UGV,
+# expressed relative to the robot's base_link origin.
+#
+# These values are read by ugv_full_stack.launch.py and passed to a
+# static_transform_publisher node.  Adjust them to match your installation.
+#
+# Convention: ROS REP-103
+#   x = forward, y = left, z = up
+#   Positive yaw = counter-clockwise when viewed from above.
+#
+# NOTE: The realsense2_camera driver publishes its own internal frames
+# (camera_color_frame, camera_depth_frame, etc.) relative to camera_link.
+# This file only defines where camera_link sits on the robot.
+
+camera_link:
+  parent_frame: base_link
+  child_frame:  camera_link
+
+  # Translation (metres) – adjust to your mounting position
+  x: 0.15      # 15 cm forward of the robot centre
+  y: 0.00      # centred left-right
+  z: 0.25      # 25 cm above base_link origin
+
+  # Rotation (radians) – level and forward-facing
+  roll:  0.0
+  pitch: 0.0
+  yaw:   0.0

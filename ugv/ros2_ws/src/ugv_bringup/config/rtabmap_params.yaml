@@ -6,9 +6,6 @@
 #   rgbd_sync      – sensor synchronisation (rtabmap_sync)
 #   rgbd_odometry  – visual odometry        (rtabmap_odom)
 #   rtabmap        – SLAM back-end          (rtabmap_slam)
-#
-# Load in a launch file with:
-#   parameters=[<path_to_this_file>]
 
 # ---------------------------------------------------------------------------
 # RGB-D Sync node  (package: rtabmap_sync, executable: rgbd_sync)
@@ -18,7 +15,7 @@ rgbd_sync:
     # Approximate time synchronisation – required because RealSense colour
     # and depth streams have slightly different timestamps.
     approx_sync: true
-    approx_sync_max_interval: 0.02        # seconds; keep ≤ one frame period
+    approx_sync_max_interval: 0.02        # seconds; keep <= one frame period
 
     # QoS: 2 = sensor_data (Best Effort) matches realsense2_camera defaults.
     qos: 2
@@ -26,8 +23,7 @@ rgbd_sync:
     # Queue depth for the approximate sync policy.
     queue_size: 10
 
-    # Publish the combined RGBDImage message.
-    publish_rgbd: false                   # false → individual topics forwarded
+    publish_rgbd: false                   # false -> individual topics forwarded
 
 # ---------------------------------------------------------------------------
 # RGB-D Odometry node  (package: rtabmap_odom, executable: rgbd_odometry)
@@ -36,8 +32,8 @@ rgbd_odometry:
   ros__parameters:
     # Coordinate frames
     frame_id:         "base_link"         # robot body frame
-    odom_frame_id:    "odom"              # wheel/visual odometry frame
-    publish_tf:       true                # broadcast odom → base_link TF
+    odom_frame_id:    "odom"              # visual odometry frame
+    publish_tf:       true                # broadcast odom -> base_link TF
 
     # Sensor input
     subscribe_depth:     true
@@ -48,16 +44,15 @@ rgbd_odometry:
     queue_size:  10
     qos:         2                        # sensor_data / Best Effort
 
-    # Visual feature settings (SURF/ORB defaults are fine for MVP)
-    Vis/MinInliers:   "10"                # min feature matches for valid frame
+    # Visual feature settings
+    Vis/MinInliers:     "10"              # min feature matches for valid frame
     Vis/InlierDistance: "0.1"            # RANSAC inlier threshold (m)
 
     # Odometry robustness
-    Odom/Strategy:         "0"           # 0 = Frame-to-Map (F2M), robust
-    Odom/ResetCountdown:   "0"           # never auto-reset
-    Odom/GuessMotion:      "true"        # use previous motion as initial guess
+    Odom/Strategy:       "0"             # 0 = Frame-to-Map (F2M), robust
+    Odom/ResetCountdown: "0"             # never auto-reset
+    Odom/GuessMotion:    "true"          # use previous motion as initial guess
 
-    # Publish odometry covariance so EKF / Nav2 can consume it
     publish_null_when_lost: true
 
 # ---------------------------------------------------------------------------
@@ -69,7 +64,7 @@ rtabmap:
     frame_id:      "base_link"
     odom_frame_id: "odom"
     map_frame_id:  "map"
-    publish_tf:    true                   # broadcast map → odom TF
+    publish_tf:    true                   # broadcast map -> odom TF
 
     # Sensor input mode
     subscribe_depth:  true
@@ -82,19 +77,19 @@ rtabmap:
     qos:         2                        # sensor_data / Best Effort
 
     # Loop closure & graph optimisation
-    RGBD/NeighborLinkRefining:  "false"  # no lidar, keep false
-    RGBD/ProximityBySpace:      "true"
-    RGBD/ProximityByTime:       "false"
-    RGBD/OptimizeFromGraphEnd:  "false"  # keep map→odom stable
-    RGBD/OptimizeMaxError:      "4"
+    RGBD/NeighborLinkRefining: "false"   # no lidar, keep false
+    RGBD/ProximityBySpace:     "true"
+    RGBD/ProximityByTime:      "false"
+    RGBD/OptimizeFromGraphEnd: "false"   # keep map->odom stable
+    RGBD/OptimizeMaxError:     "4"
 
     # Map building
-    Mem/STMSize: "30"                     # short-term memory size
+    Mem/STMSize:    "30"                  # short-term memory size
     Grid/FromDepth: "true"               # build occupancy from depth
 
     # Visual matching
     Vis/MinInliers: "10"
     Reg/Strategy:   "0"                  # 0 = visual registration
 
-    # Database – store in a predictable location inside the container
+    # Database – store in a predictable location
     database_path: "~/.ros/rtabmap.db"

@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>ugv_bringup</name>
+  <version>0.1.0</version>
+  <description>Launch files and configuration for the UGV VSLAM and autonomous navigation stack.</description>
+  <maintainer email="todo@example.com">UAV-UGV Land Survey Team</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <!-- Camera driver -->
+  <exec_depend>realsense2_camera</exec_depend>
+
+  <!-- RTAB-Map VSLAM packages (built from source as submodules) -->
+  <exec_depend>rtabmap_msgs</exec_depend>
+  <exec_depend>rtabmap_sync</exec_depend>
+  <exec_depend>rtabmap_odom</exec_depend>
+  <exec_depend>rtabmap_slam</exec_depend>
+  <exec_depend>rtabmap_ros</exec_depend>
+
+  <!-- Nav2 autonomous navigation -->
+  <exec_depend>nav2_bt_navigator</exec_depend>
+  <exec_depend>nav2_controller</exec_depend>
+  <exec_depend>nav2_planner</exec_depend>
+  <exec_depend>nav2_behaviors</exec_depend>
+  <exec_depend>nav2_waypoint_follower</exec_depend>
+  <exec_depend>nav2_lifecycle_manager</exec_depend>
+  <exec_depend>nav2_costmap_2d</exec_depend>
+  <exec_depend>nav2_navfn_planner</exec_depend>
+  <exec_depend>nav2_smoother</exec_depend>
+  <exec_depend>nav2_velocity_smoother</exec_depend>
+  <exec_depend>nav2_regulated_pure_pursuit_controller</exec_depend>
+
+  <!-- TF and static transforms -->
+  <exec_depend>tf2_ros</exec_depend>
+
+  <!-- Optional: sensor fusion (EKF) for future wheel encoder / IMU integration -->
+  <exec_depend>robot_localization</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
