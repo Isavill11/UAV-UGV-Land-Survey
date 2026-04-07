@@ -235,6 +235,8 @@ class AutonomousMission:
         logger.info("Mission shutdown complete")
 
 
+from pathlib import Path
+
 def main():
     ''' TO RUN THE MISSION ENTER:
 
@@ -242,8 +244,8 @@ def main():
 
         FROM THE PROJECT FOLDER PATH.
     '''
-    config_path = os.path.join(os.getcwd(), 'Raspberry_Pi_Agent\config.yaml')
-    if os.path.isfile(config_path):
+    config_path = Path(__file__).resolve().parent / 'config.yaml'
+    if config_path.is_file():
         logger.info(f"Config file found at location: {config_path}")
     else:
         raise TypeError(f"Could not find config path at location: {config_path}")

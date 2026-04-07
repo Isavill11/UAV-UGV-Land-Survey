@@ -18,6 +18,7 @@ if __name__ == "__main__":
 # OPTION 2: Advanced - Custom setup with tweaks
 # ============================================================================
 
+from pathlib import Path
 from Raspberry_Pi_Agent.notmain import AutonomousMission
 import logging
 
@@ -31,8 +32,8 @@ def run_custom_mission():
     """Run mission with custom configuration"""
     
     # Initialize mission controller
-    config_path = r'C:\Users\isav3\VSCode Projects\UAV-UGV-Land-Survey\Raspberry_Pi_Agent\config.yaml'
-    mission = AutonomousMission(config_path)
+    config_path = Path(__file__).resolve().parent / 'config.yaml'
+    mission = AutonomousMission(str(config_path))
     
     # Optional: Override config settings before running
     # mission.config["platform"]["startup_delay_sec"] = 5
@@ -64,9 +65,13 @@ def run_manual_mission():
     
     # Load config
     from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
-    config_path = r'C:\Users\isav3\VSCode Projects\UAV-UGV-Land-Survey\Raspberry_Pi_Agent\config.yaml'
-    check = SelfCheckPrelaunch(config_path)
-    check.run()
+    config_path = Path(__file__).resolve().parent / 'config.yaml'
+    check = SelfCheckPrelaunch(str(config_path))
+    errors = check.run()
+    if errors:
+        for err in errors:
+            print(f"Config error: {err.subsystem} - {err.message}")
+        return 1
     config = check.config
     
     # Initialize components
