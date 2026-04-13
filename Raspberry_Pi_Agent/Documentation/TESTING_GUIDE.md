@@ -2,6 +2,7 @@
 # Running a test mission: 
 
 *Prepare Configuration*
+
 Raspberry_Pi_Agent/config.yaml
 mavlink:
   connection_string: "udp:127.0.0.1:14550"  # For simulator

@@ -235,6 +235,8 @@ class AutonomousMission:
         logger.info("Mission shutdown complete")
 
 
+from pathlib import Path
+
 def main():
     ''' TO RUN THE AUTONOMOUS MISSION ENTER:
                         'python -m Raspberry_Pi_Agent.notmain'
