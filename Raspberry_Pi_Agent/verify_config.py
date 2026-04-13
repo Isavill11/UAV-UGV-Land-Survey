@@ -13,7 +13,18 @@ except ImportError:
     Picamera2 = None
 from dataclasses import dataclass
 from pathlib import Path
+import logging
 
+
+#TODO: whenever there is errors, append it to error list. After this file runs, in the notmain file it will 
+logger = logging.getLogger(__name__)
+
+
+
+import logging
+
+
+    
 REQUIRED_KEYS = {
     "platform": {
         "name": str,
@@ -42,7 +53,6 @@ REQUIRED_KEYS = {
     },
 }
 
-
 @dataclass
 class PrecheckError: 
     subsystem: str
@@ -50,6 +60,15 @@ class PrecheckError:
     timestamp: float
     severity: str = "ERROR"
     exception: Exception | None = None
+
+    def __str__(self):
+        base = f"[{self.severity}] [{self.subsystem}] {self.message} (at {self.timestamp:.2f})"
+        if self.exception:
+            base += f"\n  Caused by: {type(self.exception).__name__}: {self.exception}"
+        return base
+
+    def __repr__(self):
+        return self.__str__()
     
 
 
@@ -63,27 +82,46 @@ class SelfCheckPrelaunch:
     def run(self):
         issues = []
 
-        config_error = self._check_config() ### Done
-        if config_error: 
-            self.ready = False
-            return[config_error]
-        schema_errors = self._check_required_keys() ### Done
-        if schema_errors: 
-            return schema_errors
+        config_error = self._check_config() 
+        if config_error:
+            self.log_error(config_error)
+            if config_error.severity == "ERROR": 
+                self.ready = False
+                logger.error(f'Ready status: {self.ready}')
+                return
+
+        
+        schema_errors = self._check_required_keys() 
+        if schema_errors:
+            for e in schema_errors: 
+                self.log_error(e)
+                if e.severity == "ERROR":
+                    self.ready = False
+                    logger.error(f'Ready status: {self.ready}')
+                    return
+
+            
 
         for check in [
-        self._check_camera, ### Done
-        self._check_network, ### Done
-        self._check_power, ### Done
-        self._check_storage, ### Done
-        self._check_thermal, ### Done
+        self._check_camera, 
+        self._check_network,
+        self._check_power, 
+        self._check_storage, 
+        self._check_thermal, 
         ]: 
             error = check()
             if error: 
-                issues.append(error)
+                self.log_error(error)
                 
         fatal = [e for e in issues if e.severity == "ERROR"]
         self.ready = len(fatal) == 0
+
+    
+
+    def log_error(self, error: PrecheckError):
+        level = logging.ERROR if error.severity == "ERROR" else logging.WARNING
+        logging.log(level, str(error))
+
 
 
     def _check_config(self) -> PrecheckError | None:
@@ -124,11 +162,14 @@ class SelfCheckPrelaunch:
         cam_res = (dims["width"], dims["height"])
         capture_profiles = self.config['camera']['capture_profiles']
         cam_type = self.config["camera"]["type"]
-        print(capture_profiles.type())
-        print(capture_profiles)
+
+
+
         if cam_type == "None":
             return None
 
+
+        logger.info(f"Currently running a {os_name} OS.")
         if os_name == 'Linux': 
             try: 
                 picam2 = Picamera2()
@@ -420,7 +461,7 @@ class SelfCheckPrelaunch:
             if key not in config_section:
                 errors.append(
                     PrecheckError(
-                        "Config",
+                        "Config Schema",
                         f"Missing required key: {full_path}",
                         time.time()
                     )
@@ -433,7 +474,7 @@ class SelfCheckPrelaunch:
                 if not isinstance(value, dict):
                     errors.append(
                         PrecheckError(
-                            "Config",
+                            "Config Schema",
                             f"Expected {full_path} to be a dictionary",
                             time.time()
                         )
@@ -446,7 +487,7 @@ class SelfCheckPrelaunch:
                 if not isinstance(value, expected):
                     errors.append(
                         PrecheckError(
-                            "Config",
+                            "Config Schema",
                             f"{full_path} must be of type {expected.__name__}",
                             time.time()
                         )
@@ -454,14 +495,14 @@ class SelfCheckPrelaunch:
                 try:
                     value.strip == ''
                 except Exception as e: 
-                    errors.append(PrecheckError('Config', 
+                    errors.append(PrecheckError('Config Schema', 
                                                 'no idea what kind of file this is', 
                                                 time.time(), 
                                                 e))
                     if expected == str:
                         errors.append(
                             PrecheckError(
-                                "Config",
+                                "Config Schema",
                                 f"{full_path} cannot be empty",
                                 time.time()
                             )
@@ -473,10 +514,8 @@ class SelfCheckPrelaunch:
 
     def _check_required_keys(self) -> PrecheckError | None:
         errors = self._validate_keys(REQUIRED_KEYS, self.config)
-
         if errors:
-            return errors[0]
-
+            return errors
         return None
 
 

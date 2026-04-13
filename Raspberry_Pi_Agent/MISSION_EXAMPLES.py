@@ -9,9 +9,10 @@ with MAVLink integration on a Raspberry Pi.
 # OPTION 1: Simple - Run mission with default config
 # ============================================================================
 
-if __name__ == "__main__":
-    from Raspberry_Pi_Agent.notmain import main
-    main()
+def default_auto_mission():
+    if __name__ == "__main__":
+        from Raspberry_Pi_Agent.notmain import main
+        main()
 
 
 # ============================================================================
@@ -58,18 +59,26 @@ from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionCont
 from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController
 from Raspberry_Pi_Agent.Mission_Controller.health import SystemHealth, DroneHealth, PiHealth, LinkHealth
 import time
+import logging
+import os 
 
-def run_manual_mission():
+
+logger = logging.getLogger(__name__)
+
+
+def run_manual_mission(config_path):
     """Run mission with step-by-step control"""
     
     # Load config
     from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
-    config_path = r'C:\Users\isav3\VSCode Projects\UAV-UGV-Land-Survey\Raspberry_Pi_Agent\config.yaml'
     check = SelfCheckPrelaunch(config_path)
     check.run()
     config = check.config
+
+    if not check.ready:
+        raise RuntimeError('The mission is not ready to run. See errors above.')
     
-    # Initialize components
+
     system_health = SystemHealth(
         drone=DroneHealth(),
         pi=PiHealth(),
@@ -126,19 +135,19 @@ def run_manual_mission():
     start_time = time.time()
     while time.time() - start_time < 30:
         state, issues = system_health.evaluate(config)
-        
-        if system_health.drone.armed:
-            print("  ✓ Drone armed - mission can start!")
-            break
-        
-        time.sleep(1)
+        if not state == "CRITICAL":
+            if system_health.drone.armed and not issues:
+                print("  ✓ Drone armed - mission can start!")
+                break
+        return 1
     
+    time.sleep(1)
+        
     if not system_health.drone.armed:
         print("  Timeout: Drone not armed. Aborting.")
         mavlink.disconnect()
         return 1
     
-    # --- Step 6: Start mission ---
     print("Step 6: Starting mission!")
     mission_controller.request_start()
     mission_controller.wait_for_start()
@@ -162,14 +171,11 @@ def run_manual_mission():
             print("Drone disarmed - mission complete!")
             break
         
-        # Update mission and capture
         mission_controller.update()
         capture_controller.update()
         
-        # Throttle loop
         time.sleep(loop_interval)
     
-    # --- Step 8: Cleanup ---
     print("Step 8: Cleaning up...")
     capture_controller.stop()
     mavlink.stop_listening()
@@ -178,10 +184,6 @@ def run_manual_mission():
     return 0
 
 
-# ============================================================================
-# OPTION 4: Just Connect and Listen
-# ============================================================================
-
 def connect_and_listen_example():
     """Connect to drone and listen to messages for 30 seconds"""
     
@@ -189,7 +191,7 @@ def connect_and_listen_example():
     import time
     
     # Connect
-    mavlink = MAVLinkHandler("/dev/ttyS0", 115200)
+    mavlink = MAVLinkHandler("/dev/serial0", 115200)
     
     if not mavlink.connect():
         print("Failed to connect")
@@ -222,6 +224,9 @@ if __name__ == "__main__":
     # Uncomment the one you want to run:
     
     # run_custom_mission()
-    # run_manual_mission()
+    cwd = os.getcwd()
+    config_path = os.path.join(cwd, r'\Raspberry_Pi_Agent\config.yaml')
+
+    run_manual_mission(config_path)
     # connect_and_listen_example()
     pass

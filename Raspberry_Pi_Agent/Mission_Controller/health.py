@@ -228,6 +228,7 @@ class LinkHealth:
         """Update SYS_STATUS timestamp when received."""
         self.last_sys_status = time.time()
         self.sys_status_received = True
+        print(f'System status: {self.la}')
 
     def link_state(self, cfg) -> LinkState:
         if self._heartbeat_timeout():
@@ -263,13 +264,11 @@ class LinkHealth:
         return issues
 
     def _heartbeat_timeout(self) -> bool:
-        """Check if heartbeat has timed out."""
         if not self.heartbeat_received or self.last_heartbeat is None:
             return True
         return (time.time() - self.last_heartbeat) > self.MESSAGE_TIMEOUT
 
     def _sys_status_timeout(self) -> bool:
-        """Check if SYS_STATUS has timed out."""
         if not self.sys_status_received or self.last_sys_status is None:
             return True
         return (time.time() - self.last_sys_status) > self.MESSAGE_TIMEOUT
@@ -289,7 +288,8 @@ class SystemHealth:
         issues.extend(self.pi.evaluate(cfg))
         issues.extend(self.radio.evaluate(cfg))
 
-
+        #### system state options: OK, DEGRADED, CRITICAL
+        
         if any(i.severity == Severity.CRITICAL for i in issues):
             return SystemState.CRITICAL, issues
 

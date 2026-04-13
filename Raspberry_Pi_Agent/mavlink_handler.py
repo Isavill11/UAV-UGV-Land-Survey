@@ -102,7 +102,6 @@ class MAVLinkHandler:
     
     def register_handler(self, message_type: str, callback: Callable):
         """
-        Register a callback for a specific message type
         Args:
             message_type: MAVLink message type (e.g., 'HEARTBEAT', 'SYS_STATUS', 'BATTERY_STATUS')
             callback: Function to call when message is received. Will receive the message object.
@@ -118,7 +117,7 @@ class MAVLinkHandler:
                 
                 if msg:
                     msg_type = msg.get_type()
-                    logger.info(f'Recieved Mavlink Message: {msg_type}')
+                    # logger.info(f'Recieved Mavlink Message: {msg_type}')
 
                     # Store in buffer
                     with self._lock:
@@ -126,7 +125,7 @@ class MAVLinkHandler:
                     
 
                     if msg_type == "HEARTBEAT":
-                        logger.info("Recieved a heartbeat!")
+                        # logger.info("Recieved a heartbeat!")
                         self.last_heartbeat = time.time()
                     
                     # Call registered handlers

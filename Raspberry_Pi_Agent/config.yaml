@@ -21,7 +21,7 @@ mavlink:
 
 
 camera:
-  id: 0  # Camera device index (0 for first camera)
+  id: "0"  # Camera device index (0 for first camera)
   type: "PiCam" ## PiCam | Webcam | None
   enable_on_start: true
 
