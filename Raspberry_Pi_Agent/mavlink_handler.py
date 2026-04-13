@@ -254,7 +254,7 @@ class MAVLinkHandler:
             logger.error(f"Request message interval failed: {e}")
             return False
     
-    def get_last_message(self, message_type: str) -> Optional:
+    def get_last_message(self, message_type: str) -> Optional[dict]:
         """
         Args:
             message_type: Message type name

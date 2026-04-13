@@ -246,7 +246,8 @@ def main():
                         'python -m Raspberry_Pi_Agent.MISSION_EXAMPLES'
         FROM THE PROJECT FOLDER PATH.
     '''
-    config_path = os.path.join(os.getcwd(), r'Raspberry_Pi_Agent\config.yaml')
+    cwd = os.getcwd()
+    config_path = os.path.join(cwd, 'Raspberry_Pi_Agent', 'config.yaml')
 
     if os.path.isfile(config_path):
         logger.info(f"Config file found at location: {config_path}")

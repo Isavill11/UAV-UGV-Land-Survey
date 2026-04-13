@@ -4,12 +4,13 @@ Quick Start Example - Running an Autonomous Mission
 This example shows how to quickly set up and run an autonomous drone mission
 with MAVLink integration on a Raspberry Pi.
 """
+import os
 
 # ============================================================================
 # OPTION 1: Simple - Run mission with default config
 # ============================================================================
 
-def default_auto_mission():
+def default_auto_mission(config_path):
     if __name__ == "__main__":
         from Raspberry_Pi_Agent.notmain import main
         main()
@@ -19,22 +20,21 @@ def default_auto_mission():
 # OPTION 2: Advanced - Custom setup with tweaks
 # ============================================================================
 
-from pathlib import Path
-from Raspberry_Pi_Agent.notmain import AutonomousMission
-import logging
-
-# Setup logging to see what's happening
-logging.basicConfig(
-    level=logging.DEBUG,  # Change to INFO for less verbose output
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
-
-def run_custom_mission():
+       
+def run_custom_mission(config_path):
     """Run mission with custom configuration"""
-    
+    from pathlib import Path
+    from Raspberry_Pi_Agent.notmain import AutonomousMission
+    import logging
+
+    # Setup logging to see what's happening
+    logging.basicConfig(
+        level=logging.DEBUG,  # Change to INFO for less verbose output
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
     # Initialize mission controller
-    config_path = Path(__file__).resolve().parent / 'config.yaml'
-    mission = AutonomousMission(str(config_path))
+    mission = AutonomousMission(config_path)
     
     # Optional: Override config settings before running
     # mission.config["platform"]["startup_delay_sec"] = 5
@@ -55,21 +55,21 @@ def run_custom_mission():
 # OPTION 3: Manual Control - Step-by-step mission management
 # ============================================================================
 
-from Raspberry_Pi_Agent.mavlink_handler import MAVLinkHandler
-from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionController
-from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController
-from Raspberry_Pi_Agent.Mission_Controller.health import SystemHealth, DroneHealth, PiHealth, LinkHealth
-import time
-import logging
-import os 
-
-
-logger = logging.getLogger(__name__)
 
 
 def run_manual_mission(config_path):
     """Run mission with step-by-step control"""
-    
+    from Raspberry_Pi_Agent.mavlink_handler import MAVLinkHandler
+    from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionController
+    from Raspberry_Pi_Agent.Mission_Controller.capture_controller import CaptureController
+    from Raspberry_Pi_Agent.Mission_Controller.health import SystemHealth, DroneHealth, PiHealth, LinkHealth
+    import time
+    import logging
+    import os 
+
+
+    logger = logging.getLogger(__name__)
+
     # Load config
     from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
     check = SelfCheckPrelaunch(config_path)
