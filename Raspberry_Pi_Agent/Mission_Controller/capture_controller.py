@@ -107,50 +107,17 @@ class CaptureController:
             self.state = CaptureState.DEGRADED
             return False
 
-    def _start_stream_server(self):
-        """Start Flask streaming server in background thread"""
-        try:
-            from flask import Flask, Response
-            
-            self.stream_app = Flask(__name__)
-
-            @self.stream_app.route('/stream')
-            def stream():
-                return Response(
-                    self._generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame'
-                )
-
-            @self.stream_app.route('/')
-            def index():
-                return f'<img src="/stream" width="{self.dimensions["width"]}" height="{self.dimensions["height"]}">'
-
-            logger.info(f"Starting Flask stream server on {self.stream_host}:{self.stream_port}")
-            
-            self.stream_thread = threading.Thread(
-                target=lambda: self.stream_app.run(
-                    host=self.stream_host,
-                    port=self.stream_port,
-                    threaded=True,
-                    use_reloader=False,
-                    debug=False
-                ),
-                daemon=True
-            )
-            self.stream_thread.start()
-            logger.info(f"Stream server running at http://{self.stream_host}:{self.stream_port}")
-            
-        except Exception as e:
-            logger.error(f"Failed to start stream server: {e}")
-
-    def _generate_frames(self):
-
-        while self.state != CaptureState.OFF:
+    
+    def _generate_stream_frames(self):
+        while True:
             with self.frame_lock:
-                if self.latest_frame is not None:
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + self.latest_frame + b'\r\n')
-            time.sleep(0.01)  # 100ms between frame yields
+                frame = self.latest_frame
+
+            if frame is not None:
+                yield (b'--frame\r\n'
+                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            else:
+                time.sleep(0.05)
 
 
     def stop(self):

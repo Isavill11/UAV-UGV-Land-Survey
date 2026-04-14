@@ -12,7 +12,7 @@ import sys
 import os
 from pathlib import Path
 from enum import Enum, auto
-
+import threading
 from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
 from Raspberry_Pi_Agent.mavlink_handler import MAVLinkHandler
 from Raspberry_Pi_Agent.Mission_Controller.mission_controller import MissionController
@@ -62,12 +62,56 @@ class AutonomousMission:
         
         self.mavlink = MAVLinkHandler(connection_string, baud)
         
+        camera_cfg = self.config.get("camera", {})
+        self.stream_host = camera_cfg.get("stream_host", "0.0.0.0")
+        self.stream_port = camera_cfg.get("stream_port", 5000)
+        self.running = False
+
         signal.signal(signal.SIGINT, self._signal_handler)
         signal.signal(signal.SIGTERM, self._signal_handler)
         
-        self.running = False
         logger.info(f"AutonomousMission initialized - {self.config['platform']['name']}")
-    
+
+        self._start_stream_server()
+        
+        
+        
+    def _start_stream_server(self):
+        """Start Flask streaming server in background thread"""
+        try:
+            from flask import Flask, Response
+            
+            self.stream_app = Flask(__name__)
+
+            @self.stream_app.route('/stream')
+            def stream():
+                return Response(
+                    self.capture_controller._generate_stream_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame'
+                )
+
+            @self.stream_app.route('/')
+            def index():
+                return f'<img src="/stream" width="{self.capture_controller.dimensions["width"]}" height="{self.capture_controller.dimensions["height"]}">'
+
+            logger.info(f"Starting Flask stream server on {self.stream_host}:{self.stream_port}")
+            
+            self.stream_thread = threading.Thread(
+                target=lambda: self.stream_app.run(
+                    host=self.stream_host,
+                    port=self.stream_port,
+                    threaded=True,
+                    use_reloader=False,
+                    debug=False
+                ),
+                daemon=True
+            )
+            self.stream_thread.start()
+            logger.info(f"Stream server running at http://{self.stream_host}:{self.stream_port}")
+            
+        except Exception as e:
+            logger.error(f"Failed to start stream server: {e}")
+        
     def _signal_handler(self, sig, frame):
 
         logger.info("Shutdown signal received")
@@ -87,36 +131,30 @@ class AutonomousMission:
         self.mavlink.register_handler("ATTITUDE", self._handle_attitude)
     
     def _handle_heartbeat(self, msg):
-
         self.system_health.drone.update_from_heartbeat(msg)
-        self.system_health.radio.update_heartbeat()
         logger.debug(f"Heartbeat - Armed: {self.system_health.drone.armed}, Status: {self.system_health.drone.system_status}")
     
     def _handle_sys_status(self, msg):
-
         self.system_health.drone.update_from_sys_status(msg)
-        self.system_health.radio.update_sys_status()
-        logger.debug(f"SYS_STATUS - Battery: {self.system_health.drone.battery_remaining}%, CPU: {self.system_health.drone.cpu_load}%")
+        self.system_health.radio.evaluate(self.config)
+
+        logger.debug(f"SYS_STATUS - Battery: {self.system_health.drone.battery_remaining}%, CPU: {self.system_health.drone.cpu_load}%, \nLINK CONNECTED: {self.system_health.radio.connected}")
     
     def _handle_battery_status(self, msg):
-
         self.system_health.drone.update_from_battery_status(msg)
         logger.debug(f"Battery - {self.system_health.drone.battery_voltage:.2f}V, {self.system_health.drone.battery_remaining}%")
     
     def _handle_gps_raw(self, msg):
-
         self.system_health.drone.update_from_gps_raw(msg)
         logger.debug(f"GPS - Fix: {msg.fix_type}, Alt: {self.system_health.drone.altitude:.1f}m")
     
     def _handle_local_position(self, msg):
-
         self.system_health.drone.update_from_local_position(msg)
     
     def _handle_attitude(self, msg):
         logger.debug(f"Attitude - Roll: {msg.roll:.1f}, Pitch: {msg.pitch:.1f}, Yaw: {msg.yaw:.1f}")
     
     def run(self):
-
         logger.info("="*60)
         logger.info("Starting Autonomous Mission")
         logger.info("="*60)

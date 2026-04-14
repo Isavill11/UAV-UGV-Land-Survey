@@ -23,10 +23,6 @@ logger = logging.getLogger(__name__)
 
 class MAVLinkHandler:    
     def __init__(self, connection_string: str, baud: int = 115200):
-        """Args:
-            connection_string: Connection string (e.g., '/dev/serial0', 'COM3', 'udp:127.0.0.1:14550')
-            baud: Baud rate for serial connections (default 115200)
-        """
         self.connection_string = connection_string
         self.baud = baud
         self.master = None
@@ -40,7 +36,7 @@ class MAVLinkHandler:
         self.message_buffer = deque(maxlen=1000)
         self.last_heartbeat = None
         
-        # Thread management
+        # thread stuff
         self._thread: Optional[threading.Thread] = None
         self._lock = threading.Lock()
         
@@ -157,7 +153,8 @@ class MAVLinkHandler:
         """
         Send a MAVLink command
         Args:
-            msg: MAVLink message to send
+            msg: MAVLink message with the format:
+            
         """
         if not self.connected or not self.master:
             logger.warning("Not connected, cannot send command")
