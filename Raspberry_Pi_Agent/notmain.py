@@ -10,6 +10,7 @@ import signal
 import platform
 import sys
 import os
+from pathlib import Path
 from enum import Enum, auto
 
 from Raspberry_Pi_Agent.verify_config import SelfCheckPrelaunch
@@ -20,7 +21,8 @@ from Raspberry_Pi_Agent.Mission_Controller.health import (
     DroneHealth, 
     LinkHealth, 
     PiHealth, 
-    SystemHealth
+    SystemHealth,
+    LinkState
 )
 from Raspberry_Pi_Agent.image_manager import ImageManager
 
@@ -87,11 +89,13 @@ class AutonomousMission:
     def _handle_heartbeat(self, msg):
 
         self.system_health.drone.update_from_heartbeat(msg)
+        self.system_health.radio.update_heartbeat()
         logger.debug(f"Heartbeat - Armed: {self.system_health.drone.armed}, Status: {self.system_health.drone.system_status}")
     
     def _handle_sys_status(self, msg):
 
         self.system_health.drone.update_from_sys_status(msg)
+        self.system_health.radio.update_sys_status()
         logger.debug(f"SYS_STATUS - Battery: {self.system_health.drone.battery_remaining}%, CPU: {self.system_health.drone.cpu_load}%")
     
     def _handle_battery_status(self, msg):
@@ -148,10 +152,9 @@ class AutonomousMission:
             logger.info(f"Waiting {startup_delay}s for drone initialization...")
             time.sleep(startup_delay)
             
-            # Request mission start (drone must be armed in AUTO mode)
+            # Request mission start (drone must be armed)
             logger.info("Waiting for mission start conditions...")
             logger.info("  - Arm the drone")
-            logger.info("  - Switch to AUTO mode")
             logger.info("  - Upload mission via Mission Planner")
             
             self.mission_controller.request_start()
@@ -179,16 +182,11 @@ class AutonomousMission:
                     else:
                         self.system_health.radio.connected = True
                     
-                    # RSSI threshold: lower dBm = better signal (more negative = better)
-                    # -50 dBm = excellent, -70 dBm = good, -85 dBm = weak, -100+ = critical
-                    rssi = getattr(self.system_health.radio, 'rssi', -100)  # Default to poor signal
-                    if rssi < -50:  # Excellent signal
-                        self.image_manager.transmit_batch(rssi)
-                    elif rssi < -70:  # transmit half batch
-                        self.image_manager.transmit_batch(rssi)
-                    elif rssi < -85:  # transmit single image
-                        self.image_manager.transmit_batch(rssi)
-                    # else: rssi < -100 (critical) - don't transmit, wait for better link
+                    # Use link health state for transmission decisions
+                    link_state = self.system_health.radio.link_state(self.config)
+                    if link_state == LinkState.OK:
+                        self.image_manager.transmit_batch()  # Transmit when link is healthy
+                    # Don't transmit when link is degraded or critical
                     
                     # Control loop timing
                     elapsed = time.time() - loop_start
@@ -235,8 +233,6 @@ class AutonomousMission:
         logger.info("Mission shutdown complete")
 
 
-from pathlib import Path
-
 def main():
     ''' TO RUN THE AUTONOMOUS MISSION ENTER:
                         'python -m Raspberry_Pi_Agent.notmain'
@@ -247,7 +243,7 @@ def main():
         FROM THE PROJECT FOLDER PATH.
     '''
     cwd = os.getcwd()
-    config_path = os.path.join(cwd, 'Raspberry_Pi_Agent', 'config.yaml')
+    config_path = Path(os.path.join(cwd, 'Raspberry_Pi_Agent', 'config.yaml'))
 
     if os.path.isfile(config_path):
         logger.info(f"Config file found at location: {config_path}")

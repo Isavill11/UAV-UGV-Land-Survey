@@ -46,7 +46,6 @@ class DroneHealth:
     battery_remaining: int | None = None
     battery_voltage: float | None = None
     armed: bool = False
-    flight_mode: str | None = None
     last_update: float = field(default_factory=time.time)
     gps_lock: bool = False
     altitude: float | None = None
@@ -234,7 +233,7 @@ class LinkHealth:
     def evaluate(self, cfg) -> list[HealthIssue]:
         issues = []
         now = time.time()
-        require_link = True
+        require_link = False
         try:
             require_link = cfg.get("communication", {}).get("require_radio_link", True)
         except Exception:

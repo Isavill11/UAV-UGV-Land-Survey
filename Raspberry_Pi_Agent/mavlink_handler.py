@@ -11,7 +11,7 @@ from typing import Optional, Callable, List
 from collections import deque
 
 try:
-    import pymavlink as mavutil
+    from pymavlink import mavutil
     PYMAVLINK_AVAILABLE = True
 except ImportError:
     PYMAVLINK_AVAILABLE = False

@@ -24,6 +24,7 @@ camera:
   id: "0"  # Camera device index (0 for first camera)
   type: "PiCam" ## PiCam | Webcam | None
   enable_on_start: true
+  start_stream_server: true
 
   dimensions:
     width: 640

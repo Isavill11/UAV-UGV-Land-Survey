@@ -5,15 +5,8 @@ This example shows how to quickly set up and run an autonomous drone mission
 with MAVLink integration on a Raspberry Pi.
 """
 import os
+from pathlib import Path
 
-# ============================================================================
-# OPTION 1: Simple - Run mission with default config
-# ============================================================================
-
-def default_auto_mission(config_path):
-    if __name__ == "__main__":
-        from Raspberry_Pi_Agent.notmain import main
-        main()
 
 
 # ============================================================================
@@ -23,7 +16,6 @@ def default_auto_mission(config_path):
        
 def run_custom_mission(config_path):
     """Run mission with custom configuration"""
-    from pathlib import Path
     from Raspberry_Pi_Agent.notmain import AutonomousMission
     import logging
 
@@ -225,7 +217,7 @@ if __name__ == "__main__":
     # Uncomment the one you want to run:
     # run_custom_mission()
     cwd = os.getcwd()
-    config_path = os.path.join(cwd, 'Raspberry_Pi_Agent', 'config.yaml')
+    config_path = Path(os.path.join(cwd, 'Raspberry_Pi_Agent', 'config.yaml'))
     run_manual_mission(config_path)
 
     # connect_and_listen_example()

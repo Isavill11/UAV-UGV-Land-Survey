@@ -106,7 +106,7 @@ class MissionController:
         return True
 
     def wait_for_start(self):
-        """Wait for start signal (drone armed and in AUTO mode)"""
+        """Wait for start signal (drone armed)"""
         logger.info("Waiting for mission start signal...")
         
         while not self.start_requested and self.health.drone.is_healthy(self.config):
@@ -226,7 +226,7 @@ class MissionController:
     def _on_enter(self, state: MissionState):
         """Handle state entry"""
         if state == MissionState.READY:
-            logger.info("Waiting for AUTO mode and mission start...")
+            logger.info("Waiting for mission start...")
         
         elif state == MissionState.CAPTURING:
             self.running = True
