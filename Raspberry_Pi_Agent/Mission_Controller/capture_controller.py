@@ -41,6 +41,7 @@ class CaptureController:
         self.save_dir = None
         self.last_capture = 0.0
         self.camera = None
+        
 
         self.image_manager = image_manager
         
@@ -51,12 +52,16 @@ class CaptureController:
         self.stream_app = None
         self.latest_frame = None
         self.frame_lock = threading.Lock()
+        self.camera_lock = threading.Lock()
         
         logger.info(f"CaptureController initialized (camera index: {self.camera_index})")
 
 
     # lifecycle. Right now its only using cv2 to capture. we need to add py2cam or whatever for linux.
     def start(self):
+        if self.camera is not None:
+            logger.error("Camera is already started")
+            return True
         try:
             if self.os.lower() == "windows":
                 logger.info("Starting camera using OpenCV backend (Windows)")
@@ -114,13 +119,15 @@ class CaptureController:
                 frame = self.latest_frame
 
             if frame is not None:
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+                yield (b'--frame\r\n' b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
             else:
                 time.sleep(0.05)
 
 
     def stop(self):
+        if self.camera is None:
+            return
+        
         try:
             if self.camera is not None:
                 if self.backend == "opencv":
@@ -171,8 +178,9 @@ class CaptureController:
     def _capture_frame(self):
         try:
             if self.camera is None:
-                logger.warning("Camera not initialized")
-                return False
+                logger.warning("Camera not initialized retrying now.")
+                self.start()
+                return True
 
             if self.backend == "opencv":
                 ret, frame = self.camera.read()
@@ -181,7 +189,8 @@ class CaptureController:
                     return False
 
             elif self.backend == "picamera2":
-                frame = self.camera.capture_array()
+                with self.camera_lock:
+                    frame = self.camera.capture_array()
 
                 if frame is None:
                     logger.error("Failed to capture frame (Picamera2)")

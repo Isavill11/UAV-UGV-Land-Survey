@@ -171,6 +171,7 @@ class SelfCheckPrelaunch:
 
         logger.info(f"Currently running a {os_name} OS.")
         if os_name == 'Linux': 
+            picam2 = None
             try: 
                 picam2 = Picamera2()
                 conf = picam2.create_preview_configuration(
@@ -180,7 +181,7 @@ class SelfCheckPrelaunch:
                 picam2.start()
                 frame = picam2.capture_array()
 
-                if frame == None: 
+                if frame is None: 
                     return PrecheckError(
                         'Camera', 
                         'Picam2 is not responding.', 
@@ -190,9 +191,18 @@ class SelfCheckPrelaunch:
                 return PrecheckError(
                     'Camera', 
                     'Camera could not be found. Ensure proper connection. Try rebooting.', 
-                    time.time())
+                    time.time(),
+                    exception=e)
             finally:
-                picam2.stop()
+                if picam2 is not None:
+                    try:
+                        picam2.stop()
+                    except Exception:
+                        pass
+                    try:
+                        picam2.close()
+                    except Exception:
+                        pass
 
 
         elif os_name == 'Windows': 

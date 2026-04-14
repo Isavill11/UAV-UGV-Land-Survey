@@ -1,0 +1,367 @@
+(.venv) uavrasp@uavrasp:~/Desktop/NEW3 $ python3 -m Raspberry_Pi_Agent.notmain
+2026-04-13 17:32:45,110 - __main__ - INFO - Config file found at location: /home/uavrasp/Desktop/NEW3/Raspberry_Pi_Agent/config.yaml
+2026-04-13 17:32:45,140 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,140 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,140 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,140 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,140 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,141 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,141 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776119565.14)
+2026-04-13 17:32:45,141 - Raspberry_Pi_Agent.verify_config - INFO - Currently running a Linux OS.
+[0:05:55.920883750] [1558]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[0:05:55.947638213] [1564]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx477.json
+[0:05:55.953458176] [1564]  INFO Camera camera_manager.cpp:220 Adding camera '/base/soc/i2c0mux/i2c@1/imx477@1a' for pipeline handler rpi/vc4
+[0:05:55.953559824] [1564]  INFO RPI vc4.cpp:440 Registered camera /base/soc/i2c0mux/i2c@1/imx477@1a to Unicam device /dev/media0 and ISP device /dev/media2
+[0:05:55.953614176] [1564]  INFO RPI pipeline_base.cpp:1107 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+2026-04-13 17:32:45,178 - picamera2.picamera2 - INFO - Initialization successful.
+2026-04-13 17:32:45,179 - picamera2.picamera2 - INFO - Camera now open.
+2026-04-13 17:32:45,184 - picamera2.picamera2 - INFO - Camera configuration has been adjusted!
+[0:05:55.963303065] [1558]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-RGB888/sRGB (1) 1332x990-SBGGR12_CSI2P/RAW
+[0:05:55.963729473] [1564]  INFO RPI vc4.cpp:615 Sensor: /base/soc/i2c0mux/i2c@1/imx477@1a - Selected sensor format: 1332x990-SBGGR12_1X12/RAW - Selected unicam format: 1332x990-pBCC/RAW
+2026-04-13 17:32:45,186 - picamera2.picamera2 - INFO - Configuration successful!
+2026-04-13 17:32:45,218 - picamera2.picamera2 - INFO - Camera started
+2026-04-13 17:32:46,268 - picamera2.picamera2 - INFO - Camera stopped
+2026-04-13 17:32:46,269 - root - ERROR - [ERROR] [Camera] Camera could not be found. Ensure proper connection. Try rebooting. (at 1776119566.25)
+2026-04-13 17:32:46,269 - root - ERROR - [ERROR] [Power] MAVLink endpoint not set; cannot check battery. (at 1776119566.27)
+2026-04-13 17:32:46,271 - Raspberry_Pi_Agent.image_manager - INFO - StorageManager initialized
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.image_manager - INFO -   Images dir: mission_data/images
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.image_manager - INFO -   TX queue dir: mission_data/tx_queue
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.image_manager - INFO -   Max storage: 2000MB
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.image_manager - INFO - ImageTransmitter initialized (communication DISABLED)
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.image_manager - INFO - ImageManager initialized
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - CaptureController initialized (camera index: 0)
+2026-04-13 17:32:46,272 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - MissionController initialized for uav
+2026-04-13 17:32:46,272 - __main__ - INFO - AutonomousMission initialized - uav
+2026-04-13 17:32:46,639 - __main__ - INFO - Starting Flask stream server on 0.0.0.0:5000
+2026-04-13 17:32:46,640 - __main__ - INFO - Stream server running at http://0.0.0.0:5000
+2026-04-13 17:32:46,640 - __main__ - INFO - ============================================================
+2026-04-13 17:32:46,640 - __main__ - INFO - Starting Autonomous Mission
+2026-04-13 17:32:46,640 - __main__ - INFO - ============================================================
+2026-04-13 17:32:46,640 - __main__ - INFO - Connecting to flight controller...
+ * Serving Flask app 'notmain'
+2026-04-13 17:32:46,662 - Raspberry_Pi_Agent.mavlink_handler - INFO - Connecting to /dev/serial0...
+ * Debug mode: off
+2026-04-13 17:32:46,680 - werkzeug - INFO - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.163:5000
+2026-04-13 17:32:46,680 - werkzeug - INFO - Press CTRL+C to quit
+2026-04-13 17:32:46,982 - Raspberry_Pi_Agent.mavlink_handler - INFO - Connected! System: 1, Component: 1
+2026-04-13 17:32:46,983 - __main__ - INFO - Setting up MAVLink message handlers...
+2026-04-13 17:32:46,984 - Raspberry_Pi_Agent.mavlink_handler - INFO - MAVLink listener started
+2026-04-13 17:32:47,493 - __main__ - INFO - Image transmission thread started
+2026-04-13 17:32:47,493 - __main__ - INFO - Requesting flight controller messages...
+2026-04-13 17:32:47,499 - __main__ - INFO - Running preflight checks...
+2026-04-13 17:32:47,500 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Running preflight checks...
+2026-04-13 17:32:47,504 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING - System health DEGRADED - Issues found:
+2026-04-13 17:32:47,504 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING -   [LINK] Radio RSSI critical: None
+2026-04-13 17:32:47,505 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Preflight checks PASSED
+2026-04-13 17:32:47,506 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: INIT → PREFLIGHT
+2026-04-13 17:32:47,506 - __main__ - INFO - Waiting 3s for drone initialization...
+2026-04-13 17:32:50,507 - __main__ - INFO - Waiting for mission start conditions...
+2026-04-13 17:32:50,507 - __main__ - INFO -   - Arm the drone
+2026-04-13 17:32:50,508 - __main__ - INFO - Mission loop running at 10Hz
+2026-04-13 17:32:50,508 - __main__ - INFO - ============================================================
+2026-04-13 17:33:08,744 - werkzeug - INFO - 192.168.0.225 - - [13/Apr/2026 17:33:08] "GET / HTTP/1.1" 200 -
+2026-04-13 17:33:19,374 - werkzeug - INFO - 192.168.0.225 - - [13/Apr/2026 17:33:19] "GET /favicon.ico HTTP/1.1" 404 -
+2026-04-13 17:33:51,507 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: PREFLIGHT → READY
+2026-04-13 17:33:51,508 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Waiting for mission start...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+----------------------------- camera output?
+(.venv) uavrasp@uavrasp:~/Desktop/NEW3 $ python3 -m Raspberry_Pi_Agent.notmain
+2026-04-13 17:55:39,339 - __main__ - INFO - Config file found at location: /home/uavrasp/Desktop/NEW3/Raspberry_Pi_Agent/config.yaml
+2026-04-13 17:55:39,368 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['dict' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - root - WARNING - ['int' object has no attribute 'strip'] [Config Schema] no idea what kind of file this is (at 1776120939.37)
+2026-04-13 17:55:39,369 - Raspberry_Pi_Agent.verify_config - INFO - Currently running a Linux OS.
+[0:28:50.149360968] [27001]  INFO Camera camera_manager.cpp:330 libcamera v0.5.2+99-bfd68f78
+[0:28:50.176412505] [27007]  INFO IPAProxy ipa_proxy.cpp:180 Using tuning file /usr/share/libcamera/ipa/rpi/vc4/imx477.json
+[0:28:50.183073876] [27007]  INFO Camera camera_manager.cpp:220 Adding camera '/base/soc/i2c0mux/i2c@1/imx477@1a' for pipeline handler rpi/vc4
+[0:28:50.183181987] [27007]  INFO RPI vc4.cpp:440 Registered camera /base/soc/i2c0mux/i2c@1/imx477@1a to Unicam device /dev/media0 and ISP device /dev/media2
+[0:28:50.183235450] [27007]  INFO RPI pipeline_base.cpp:1107 Using configuration file '/usr/share/libcamera/pipeline/rpi/vc4/rpi_apps.yaml'
+2026-04-13 17:55:39,407 - picamera2.picamera2 - INFO - Initialization successful.
+2026-04-13 17:55:39,407 - picamera2.picamera2 - INFO - Camera now open.
+2026-04-13 17:55:39,412 - picamera2.picamera2 - INFO - Camera configuration has been adjusted!
+[0:28:50.191527950] [27001]  INFO Camera camera.cpp:1215 configuring streams: (0) 640x480-RGB888/sRGB (1) 1332x990-SBGGR12_CSI2P/RAW
+[0:28:50.191973746] [27007]  INFO RPI vc4.cpp:615 Sensor: /base/soc/i2c0mux/i2c@1/imx477@1a - Selected sensor format: 1332x990-SBGGR12_1X12/RAW - Selected unicam format: 1332x990-pBCC/RAW
+2026-04-13 17:55:39,414 - picamera2.picamera2 - INFO - Configuration successful!
+2026-04-13 17:55:39,440 - picamera2.picamera2 - INFO - Camera started
+2026-04-13 17:55:40,462 - root - ERROR - [ERROR] [Camera] Camera could not be found. Ensure proper connection. Try rebooting. (at 1776120940.46)
+2026-04-13 17:55:40,462 - root - ERROR - [ERROR] [Power] MAVLink endpoint not set; cannot check battery. (at 1776120940.46)
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO - StorageManager initialized
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO -   Images dir: mission_data/images
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO -   TX queue dir: mission_data/tx_queue
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO -   Max storage: 2000MB
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO - ImageTransmitter initialized (communication DISABLED)
+2026-04-13 17:55:40,463 - Raspberry_Pi_Agent.image_manager - INFO - ImageManager initialized
+2026-04-13 17:55:40,464 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - CaptureController initialized (camera index: 0)
+2026-04-13 17:55:40,464 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - MissionController initialized for uav
+2026-04-13 17:55:40,464 - __main__ - INFO - AutonomousMission initialized - uav
+2026-04-13 17:55:40,763 - __main__ - INFO - Starting Flask stream server on 0.0.0.0:5000
+2026-04-13 17:55:40,764 - __main__ - INFO - Stream server running at http://0.0.0.0:5000
+2026-04-13 17:55:40,764 - __main__ - INFO - ============================================================
+2026-04-13 17:55:40,764 - __main__ - INFO - Starting Autonomous Mission
+2026-04-13 17:55:40,764 - __main__ - INFO - ============================================================
+2026-04-13 17:55:40,764 - __main__ - INFO - Connecting to flight controller...
+ * Serving Flask app 'notmain'
+ * Debug mode: off
+2026-04-13 17:55:40,780 - Raspberry_Pi_Agent.mavlink_handler - INFO - Connecting to /dev/serial0...
+2026-04-13 17:55:40,796 - werkzeug - INFO - WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.163:5000
+2026-04-13 17:55:40,796 - werkzeug - INFO - Press CTRL+C to quit
+2026-04-13 17:55:41,043 - Raspberry_Pi_Agent.mavlink_handler - INFO - Connected! System: 1, Component: 1
+2026-04-13 17:55:41,043 - __main__ - INFO - Setting up MAVLink message handlers...
+2026-04-13 17:55:41,044 - Raspberry_Pi_Agent.mavlink_handler - INFO - MAVLink listener started
+2026-04-13 17:55:41,569 - __main__ - INFO - Image transmission thread started
+2026-04-13 17:55:41,625 - __main__ - INFO - Requesting flight controller messages...
+2026-04-13 17:55:41,638 - __main__ - INFO - Running preflight checks...
+2026-04-13 17:55:41,644 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Running preflight checks...
+2026-04-13 17:55:41,647 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING - System health DEGRADED - Issues found:
+2026-04-13 17:55:41,648 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING -   [LINK] Radio RSSI critical: None
+2026-04-13 17:55:41,649 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Preflight checks PASSED
+2026-04-13 17:55:41,649 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: INIT → PREFLIGHT
+2026-04-13 17:55:41,649 - __main__ - INFO - Waiting 3s for drone initialization...
+2026-04-13 17:55:44,653 - __main__ - INFO - Waiting for mission start conditions...
+2026-04-13 17:55:44,665 - __main__ - INFO -   - Arm the drone
+2026-04-13 17:55:44,665 - __main__ - INFO - Mission loop running at 10Hz
+2026-04-13 17:55:44,677 - __main__ - INFO - ============================================================
+2026-04-13 17:55:53,892 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: PREFLIGHT → READY
+2026-04-13 17:55:53,897 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Waiting for mission start...
+2026-04-13 17:55:53,976 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: READY → CAPTURING
+2026-04-13 17:55:54,001 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission started at Mon Apr 13 17:55:53 2026
+2026-04-13 17:55:54,002 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Starting camera using Picamera2 backend (Linux)
+2026-04-13 17:55:54,004 - picamera2.picamera2 - INFO - Initialization successful.
+Exception in thread Thread-1 (listen):
+[0:29:04.882601293] [27001] ERROR Camera camera.cpp:702 Camera in Running state trying acquire() requiring state Available
+2026-04-13 17:55:54,104 - picamera2.picamera2 - ERROR - Camera __init__ sequence did not complete.
+2026-04-13 17:55:54,107 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - ERROR - Failed to start camera: Camera __init__ sequence did not complete.
+2026-04-13 17:55:54,109 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - WARNING - Camera not initialized
+2026-04-13 17:55:54,168 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING - Mission degraded - reducing capture rate
+2026-04-13 17:55:54,169 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: CAPTURING → DEGRADED
+2026-04-13 17:55:54,170 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - WARNING - Operating in degraded mode
+Traceback (most recent call last):
+  File "/usr/lib/python3.13/threading.py", line 1043, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/usr/lib/python3.13/threading.py", line 994, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 125, in listen
+    callback()
+    ~~~~~~~~^^
+  File "/usr/lib/python3/dist-packages/picamera2/picamera2.py", line 142, in handle_request
+    self.cameras[req.cookie]._requests += [CompletedRequest(req, self.cameras[req.cookie])]
+                                           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3/dist-packages/picamera2/request.py", line 93, in __init__
+    self.syncs = [picam2.allocator.sync(self.picam2.allocator, buffer, False)
+                  ^^^^^^^^^^^^^^^^
+AttributeError: 'Picamera2' object has no attribute 'allocator'
+2026-04-13 17:55:54,552 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - State transition: DEGRADED → SHUTDOWN
+2026-04-13 17:55:54,553 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Shutting down mission
+2026-04-13 17:55:54,553 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:54,644 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:54,644 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:54,773 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:54,781 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:54,924 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:54,924 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:54,974 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:54,985 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,166 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,169 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,197 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,197 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,328 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,357 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,457 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,458 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,524 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,549 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,640 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,644 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:55,704 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:55,705 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,004 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,009 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,098 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,098 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,189 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,189 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,310 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,310 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,444 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,453 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,537 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,549 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,640 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,641 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,707 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,708 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:56,868 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:56,868 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,073 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,073 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,163 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,164 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,207 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,208 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,333 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,333 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,550 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,550 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,554 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,555 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,707 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,713 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,844 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,844 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:57,948 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:57,948 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,044 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,044 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,163 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,163 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,207 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,233 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,409 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,413 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,445 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,493 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,547 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,548 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,640 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,641 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,820 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,820 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:58,901 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:58,901 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,039 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,039 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,145 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,145 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,191 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,201 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,320 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,320 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,445 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,465 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,532 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,532 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,644 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,644 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,707 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,708 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,873 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,873 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:55:59,912 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:55:59,912 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,069 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,077 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,163 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,164 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,207 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,208 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,397 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,421 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,496 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,509 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,552 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,553 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,641 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,644 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,808 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,808 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:00,900 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:00,905 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,113 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,117 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,169 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,169 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,244 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,245 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,381 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,381 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,443 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,445 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,553 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,553 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,641 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,644 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,845 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,845 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:01,856 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:01,856 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,076 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,076 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,128 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,128 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,207 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,208 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,365 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,365 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,468 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,468 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,553 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,553 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,644 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,645 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,821 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,821 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:02,864 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:02,864 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,073 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:03,163 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,207 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:03,208 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,288 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:03,288 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,516 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:03,516 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,553 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission shutdown complete
+2026-04-13 17:56:03,553 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+^C2026-04-13 17:56:03,611 - __main__ - INFO - Shutdown signal received
+2026-04-13 17:56:03,617 - __main__ - INFO - Shutting down mission...
+2026-04-13 17:56:03,618 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission stop requested
+2026-04-13 17:56:03,637 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,637 - Raspberry_Pi_Agent.image_manager - INFO - Image transmitter stopped
+2026-04-13 17:56:03,638 - Raspberry_Pi_Agent.mavlink_handler - INFO - MAVLink listener stopped
+2026-04-13 17:56:03,638 - Raspberry_Pi_Agent.mavlink_handler - INFO - Disconnected from flight controller
+2026-04-13 17:56:03,638 - __main__ - INFO - Images transmitted: 0
+2026-04-13 17:56:03,638 - __main__ - INFO - Images pending: 0
+2026-04-13 17:56:03,638 - __main__ - INFO - Mission shutdown complete
+2026-04-13 17:56:03,638 - __main__ - INFO - Shutting down mission...
+2026-04-13 17:56:03,639 - Raspberry_Pi_Agent.Mission_Controller.mission_controller - INFO - Mission stop requested
+2026-04-13 17:56:03,639 - Raspberry_Pi_Agent.Mission_Controller.capture_controller - INFO - Camera stopped
+2026-04-13 17:56:03,639 - Raspberry_Pi_Agent.image_manager - INFO - Image transmitter stopped
+2026-04-13 17:56:03,639 - Raspberry_Pi_Agent.mavlink_handler - INFO - MAVLink listener stopped
+2026-04-13 17:56:03,639 - Raspberry_Pi_Agent.mavlink_handler - INFO - Disconnected from flight controller
+2026-04-13 17:56:03,639 - __main__ - INFO - Images transmitted: 0
+2026-04-13 17:56:03,639 - __main__ - INFO - Images pending: 0
+2026-04-13 17:56:03,639 - __main__ - INFO - Mission shutdown complete
+2026-04-13 17:56:03,717 - picamera2.picamera2 - INFO - Camera stopped
+2026-04-13 17:56:03,721 - picamera2.picamera2 - INFO - Camera closed successfully.
+(.venv) uavrasp@uavrasp:~/Desktop/NEW3 $
