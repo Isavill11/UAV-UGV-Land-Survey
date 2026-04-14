@@ -101,10 +101,6 @@ class CaptureController:
 
             self.state = CaptureState.ACTIVE
             
-            if self.start_stream_server:
-                self._start_stream_server()
-
-            
             return True
 
         except Exception as e:

@@ -142,9 +142,11 @@ class MissionController:
         
         elif self.state == MissionState.PREFLIGHT:
             if self.health.drone.armed and self.start_requested:
+                self.running = True
                 self._transition(MissionState.READY)
         
         elif self.state == MissionState.READY:
+            logger.info(f"READY: armed={self.health.drone.armed}, running={self.running}")
             if self.health.drone.armed and self.running:
                 self._transition(MissionState.CAPTURING)
         
@@ -221,6 +223,7 @@ class MissionController:
     def _on_enter(self, state: MissionState):
         """Handle state entry"""
         if state == MissionState.READY:
+            self.running = True
             logger.info("Waiting for mission start...")
         
         elif state == MissionState.CAPTURING:

@@ -132,7 +132,7 @@ class AutonomousMission:
     
     def _handle_heartbeat(self, msg):
         self.system_health.drone.update_from_heartbeat(msg)
-        logger.debug(f"Heartbeat - Armed: {self.system_health.drone.armed}, Status: {self.system_health.drone.system_status}")
+        logger.info(f"Heartbeat - Armed: {self.system_health.drone.armed}, Base Mode: {msg.base_mode}, Status: {self.system_health.drone.system_status}")
     
     def _handle_sys_status(self, msg):
         self.system_health.drone.update_from_sys_status(msg)
