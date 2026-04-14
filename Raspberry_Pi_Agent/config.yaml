@@ -25,6 +25,8 @@ camera:
   type: "PiCam" ## PiCam | Webcam | None
   enable_on_start: true
   start_stream_server: true
+  stream_host: "0.0.0.0"
+  stream_port: 5000
 
   dimensions:
     width: 640

@@ -15,10 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 '''
-case structure: 
-Everything is good if: 
-
-
 reduce capture rate if: 
 - the battery is getting pretty low
 - the raspberry pi is getting pretty hot.
@@ -27,7 +23,6 @@ reduce capture rate if:
 - OPTIONAL/IMPLEMENT LATER: if there seems to be NO animals or crops on screen. 
 
     
-
 turn off capturing all together if: 
 - we are preflight/barely taking off
 - the system state is critical 

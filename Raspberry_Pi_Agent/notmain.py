@@ -155,10 +155,10 @@ class AutonomousMission:
             # Request mission start (drone must be armed)
             logger.info("Waiting for mission start conditions...")
             logger.info("  - Arm the drone")
-            logger.info("  - Upload mission via Mission Planner")
+            # logger.info("  - Upload mission via Mission Planner")
             
             self.mission_controller.request_start()
-            self.mission_controller.wait_for_start()
+            # self.mission_controller.wait_for_start()
             
             # Main mission loop
             self.running = True
