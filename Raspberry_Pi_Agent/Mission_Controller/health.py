@@ -217,17 +217,22 @@ class LinkHealth:
     fixed: int | None = None
     last_update: float = field(default_factory=time.time)
 
+
     packet_loss_percent: float | None = None
     connected: bool = False
 
     def link_state(self, cfg) -> LinkState:
-        if self._is_stale(): 
-            return LinkState.STALE
-        if self._is_degraded(cfg): 
-            return LinkState.DEGRADED
-        if self._is_bad(cfg): 
-            return LinkState.CRITICAL
-        return LinkState.OK
+        mission_type = cfg['mission_type']
+        if mission_type == 'autonomous':
+            if self._is_stale(): 
+                return LinkState.STALE
+            if self._is_degraded(cfg): 
+                return LinkState.DEGRADED
+            if self._is_bad(cfg): 
+                return LinkState.CRITICAL
+            return LinkState.OK
+        else:
+            return LinkState.OK
     
     
     def evaluate(self, cfg) -> list[HealthIssue]:
@@ -239,9 +244,7 @@ class LinkHealth:
         except Exception:
             require_link = True
 
-        # Helper to map configured threshold locations (backwards compatible)
         def _get_threshold(name, default):
-            # Try nested keys used in config.yaml first, then top-level fallback
             try:
                 return cfg["communication"]["link_thresholds"].get(name, cfg.get(name, default))
             except Exception:
