@@ -161,10 +161,7 @@ class MissionController:
                 logger.warning("Mission degraded - reducing capture rate")
                 self._transition(MissionState.DEGRADED)
             
-            # Check if mission is complete or aborted
-            elif not self.health.drone.armed:
-                logger.info("Drone disarmed - mission complete")
-                self._transition(MissionState.SHUTDOWN)
+            # Removed disarm check to continue capturing even if drone disarms
         
         elif self.state == MissionState.DEGRADED:
             # Try to recover to normal operation
@@ -177,9 +174,7 @@ class MissionController:
                 logger.critical("Degraded mode failed - FAILSAFE")
                 self._transition(MissionState.FAILSAFE)
             
-            # Check if mission aborted
-            elif not self.health.drone.armed:
-                self._transition(MissionState.SHUTDOWN)
+            # Removed disarm check to continue in degraded mode
         
         elif self.state == MissionState.FAILSAFE:
             # Attempt graceful recovery or shutdown
