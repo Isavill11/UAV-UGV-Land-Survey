@@ -33,7 +33,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class AutonomousMission:
+class Mission:
     
     def __init__(self, config_path: str):
         
@@ -288,7 +288,7 @@ def main():
     else:
         raise TypeError(f"Could not find config path at location: {config_path}")
     
-    mission = AutonomousMission(config_path)
+    mission = Mission(config_path)
     success = mission.run()
     
     return 0 if success else 1

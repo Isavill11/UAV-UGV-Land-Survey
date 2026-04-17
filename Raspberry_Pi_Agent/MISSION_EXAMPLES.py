@@ -16,7 +16,7 @@ from pathlib import Path
        
 def run_custom_mission(config_path):
     """Run mission with custom configuration"""
-    from Raspberry_Pi_Agent.notmain import AutonomousMission
+    from Raspberry_Pi_Agent.notmain import Mission
     import logging
 
     # Setup logging to see what's happening
@@ -26,7 +26,7 @@ def run_custom_mission(config_path):
     )
 
     # Initialize mission controller
-    mission = AutonomousMission(config_path)
+    mission = Mission(config_path)
     
     # Optional: Override config settings before running
     # mission.config["platform"]["startup_delay_sec"] = 5
