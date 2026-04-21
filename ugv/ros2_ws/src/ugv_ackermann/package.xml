@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ugv_ackermann</name>
+  <version>0.0.1</version>
+  <description>Simple cmd_vel to ackermann converter for UGV steering.</description>
+  <maintainer email="you@example.com">Your Name</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <exec_depend>rclpy</exec_depend>
+</package>
