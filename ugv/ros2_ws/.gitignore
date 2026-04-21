@@ -1,0 +1,4 @@
+# ROS 2 colcon build artefacts – never commit these
+build/
+install/
+log/

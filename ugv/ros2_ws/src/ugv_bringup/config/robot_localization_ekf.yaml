@@ -1,0 +1,64 @@
+# EKF sensor fusion configuration for robot_localization.
+#
+# In the current UGV setup, RTAB-Map already provides:
+#   /rtabmap/odom  – visual odometry   (odom -> base_link TF)
+#   map -> odom TF – SLAM localisation
+#
+# This EKF is intended for future expansion when wheel encoders or an IMU
+# are added to improve odometry robustness.
+#
+# It is NOT launched by default in ugv_full_stack.launch.py.
+# To enable it:
+#   1. Add robot_localization to ugv_nav2.launch.py.
+#   2. Set publish_tf: true here.
+#   3. Set publish_tf: false in rtabmap_params.yaml (rgbd_odometry section)
+#      so only the EKF publishes odom -> base_link.
+
+ekf_filter_node:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+
+    # Frames
+    map_frame:       map
+    odom_frame:      odom
+    base_link_frame: base_link
+    world_frame:     odom        # EKF publishes odom -> base_link
+
+    # Disabled by default – RTAB-Map odometry node publishes this TF.
+    # Enable only if switching the odometry source to this EKF.
+    publish_tf: false
+    print_diagnostics: true
+
+    # ── Input 0: RTAB-Map visual odometry ──────────────────────────────
+    odom0: /rtabmap/odom
+    # Fuse: [x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az]
+    odom0_config: [true,  true,  false,
+                   false, false, true,
+                   true,  false, false,
+                   false, false, true,
+                   false, false, false]
+    odom0_differential: false
+    odom0_queue_size: 10
+
+    # ── Input 1: IMU (disabled – uncomment when hardware is available) ──
+    # imu0: /imu/data
+    # imu0_config: [false, false, false,
+    #               true,  true,  true,
+    #               false, false, false,
+    #               true,  true,  true,
+    #               true,  false, false]
+    # imu0_differential: false
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true
+
+    # ── Input 2: Wheel odometry (disabled – uncomment when available) ───
+    # odom1: /wheel_odom
+    # odom1_config: [false, false, false,
+    #                false, false, false,
+    #                true,  false, false,
+    #                false, false, true,
+    #                false, false, false]
+    # odom1_differential: true
+    # odom1_queue_size: 10

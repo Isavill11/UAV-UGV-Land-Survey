@@ -1,0 +1,18 @@
+# Exclude ROS 2 build artefacts from the Docker build context
+ugv/ros2_ws/build/
+ugv/ros2_ws/install/
+ugv/ros2_ws/log/
+
+# Python caches
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# Git history (large, not needed in image)
+.git/
+.gitmodules
+
+# Editor / OS noise
+.DS_Store
+*.swp
+*.swo
