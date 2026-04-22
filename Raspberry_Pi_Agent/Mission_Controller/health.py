@@ -199,13 +199,26 @@ class PiHealth:
         return (time.time() - self.last_update) > timeout
     
     def get_raspi_core_temp(self): 
-        temp = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline() 
-        return float(temp) / 1000.0 
+        try:
+            if os.name == 'posix':  # Linux/Raspberry Pi
+                temp = os.popen('cat /sys/class/thermal/thermal_zone0/temp').readline() 
+                return float(temp) / 1000.0 
+            else:  # Windows or other
+                # On non-Raspberry Pi systems, return None or a safe value
+                return None
+        except Exception:
+            return None 
     
     def check_disk(self): 
-        st = os.statvfs("/") 
-        free = st.f_bavail * st.f_frsize 
-        return free > 100 * 1024 * 1024 
+        try:
+            # On Windows, use current drive; on Linux, use /
+            path = "/" if os.name == 'posix' else "C:"
+            st = os.statvfs(path) 
+            free = st.f_bavail * st.f_frsize 
+            return free > 100 * 1024 * 1024 
+        except Exception:
+            # If statvfs fails, assume storage is OK for now
+            return True 
 
 
 

@@ -116,10 +116,14 @@ class StorageManager:
             if available_mb < self.min_storage_warn_mb:
                 logger.warning(f"Low storage: {available_mb:.1f}MB available")
             
+            # Create profile-specific directory
+            profile_dir = os.path.join(self.images_dir, profile.lower())
+            os.makedirs(profile_dir, exist_ok=True)
+            
             # Generate filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
             filename = f"img_{timestamp}.jpg"
-            filepath = os.path.join(self.images_dir, filename)
+            filepath = os.path.join(profile_dir, filename)
             
             # Write image to disk
             with open(filepath, 'wb') as f:
@@ -143,7 +147,7 @@ class StorageManager:
             self.image_metadata[filename] = metadata
             self._save_metadata_index()
             
-            logger.debug(f"Image saved: {filename} ({file_size/1024:.1f}KB)")
+            logger.debug(f"Image saved: {filename} ({file_size/1024:.1f}KB) in {profile.lower()}/")
             return metadata
             
         except Exception as e:
