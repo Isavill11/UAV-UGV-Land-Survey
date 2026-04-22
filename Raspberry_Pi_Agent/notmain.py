@@ -132,7 +132,7 @@ class Mission:
     
     def _handle_heartbeat(self, msg):
         self.system_health.drone.update_from_heartbeat(msg)
-        logger.info(f"Heartbeat - Armed: {self.system_health.drone.armed}, Base Mode: {msg.base_mode}, Status: {self.system_health.drone.system_status}")
+        #  logger.info(f"Heartbeat - Armed: {self.system_health.drone.armed}, Base Mode: {msg.base_mode}, Status: {self.system_health.drone.system_status}")
     
     def _handle_sys_status(self, msg):
         self.system_health.drone.update_from_sys_status(msg)
@@ -142,7 +142,7 @@ class Mission:
     
     def _handle_battery_status(self, msg):
         self.system_health.drone.update_from_battery_status(msg)
-        logger.debug(f"Battery - {self.system_health.drone.battery_voltage:.2f}V, {self.system_health.drone.battery_remaining}%")
+        logger.info(f"Battery - {self.system_health.drone.battery_voltage:.2f}V, {self.system_health.drone.battery_remaining}%")
     
     def _handle_gps_raw(self, msg):
         self.system_health.drone.update_from_gps_raw(msg)
@@ -193,7 +193,7 @@ class Mission:
             # Request mission start (drone must be armed)
             logger.info("Waiting for mission start conditions...")
             logger.info("  - Arm the drone")
-            # logger.info("  - Upload mission via Mission Planner")
+            
             
             self.mission_controller.request_start()
             # self.mission_controller.wait_for_start()

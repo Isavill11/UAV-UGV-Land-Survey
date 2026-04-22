@@ -24,7 +24,7 @@ class CaptureState(Enum):
 
 
 class CaptureController:
-    def __init__(self, config, image_manager=None, os="Windows"):
+    def __init__(self, config, image_manager, os="Windows"):
         camera_cfg = config["camera"]
         self.start_stream_server = camera_cfg.get("start_stream_server", False)
         self.stream_host = camera_cfg.get("stream_host", "0.0.0.0")
@@ -38,7 +38,7 @@ class CaptureController:
         self.active_profile = None 
         self.interval = 0.0
         self.jpeg_quality = 90
-        self.save_dir = None
+        self.save_dir = "images"
         self.last_capture = 0.0
         self.camera = None
         
@@ -169,6 +169,7 @@ class CaptureController:
             return
 
         self._capture_frame()
+        
         self.last_capture = now
 
     def _capture_frame(self):
@@ -221,7 +222,7 @@ class CaptureController:
                 if filename:
                     logger.debug(f"Captured and stored: {filename}")
                     return True
-            
+
             # Fallback: save to local directory
             if self.save_dir:
                 if not os.path.exists(self.save_dir):

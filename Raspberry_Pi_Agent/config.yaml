@@ -2,11 +2,12 @@
 platform:
   name: "uav" # uav | ugv | ground_station
   id: ""
-  location: ""  
-  home : "" 
+  location: ""
+  home : ""
   startup_delay_sec: 3
   loop_rate_hz: 10
-  mission_type: "manual" # manual, autonomous
+
+mission_type: "manual" # manual, autonomous
 
 # MAVLink Flight Controller Configuration
 mavlink:
@@ -34,13 +35,13 @@ camera:
     height: 480
   capture_profiles:
     CAPTURING:
-      interval: 1.0          # Capture every 1 second
+      interval: 0.50          # Capture every 1 second
       jpeg_quality: 90       # High quality for good data
-      save_dir: mission_data/images
+      save_dir: mission_data/images/capturing
     DEGRADED:
-      interval: 5.0          # Reduced rate for degraded conditions
+      interval: 0.30          # Reduced rate for degraded conditions
       jpeg_quality: 50       # Lower quality to save storage
-      save_dir: mission_data/images
+      save_dir: mission_data/images/degraded
     CRITICAL:
       interval: 0            # No capture in critical state
       jpeg_quality: 0 

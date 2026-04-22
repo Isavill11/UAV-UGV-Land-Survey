@@ -146,7 +146,7 @@ class MissionController:
                 self._transition(MissionState.READY)
         
         elif self.state == MissionState.READY:
-            logger.info(f"READY: armed={self.health.drone.armed}, running={self.running}")
+            # logger.info(f"READY: armed={self.health.drone.armed}, running={self.running}")
             if self.health.drone.armed and self.running:
                 self._transition(MissionState.CAPTURING)
         
@@ -236,7 +236,7 @@ class MissionController:
             logger.info("Shutting down mission")
     
     def _on_exit(self, state: MissionState):
-        """Handle state exit"""
+        
         pass
     
     def request_start(self):
